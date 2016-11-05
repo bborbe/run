@@ -1,4 +1,4 @@
-package runner
+package run
 
 import (
 	"context"
@@ -8,14 +8,13 @@ import (
 
 type run func(context.Context) error
 
-func RunAndWaitOnFirst(runners ...run) error {
+func CancelOnFirstFinish(runners ...run) error {
 	if len(runners) == 0 {
 		glog.V(2).Infof("nothing to run")
 		return nil
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-
 	errors := make(chan error)
 	for _, runner := range runners {
 		run := runner
@@ -23,6 +22,5 @@ func RunAndWaitOnFirst(runners ...run) error {
 			errors <- run(ctx)
 		}()
 	}
-
 	return <-errors
 }

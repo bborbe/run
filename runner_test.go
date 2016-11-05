@@ -1,4 +1,4 @@
-package runner
+package run
 
 import (
 	"context"
@@ -18,7 +18,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestRunNothing(t *testing.T) {
-	err := RunAndWaitOnFirst()
+	err := CancelOnFirstFinish()
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -26,7 +26,7 @@ func TestRunNothing(t *testing.T) {
 
 func TestRun(t *testing.T) {
 	r1 := new(testRunnable)
-	err := RunAndWaitOnFirst(r1.Run)
+	err := CancelOnFirstFinish(r1.Run)
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func TestRun(t *testing.T) {
 
 func TestRunThree(t *testing.T) {
 	r1 := new(testRunnable)
-	err := RunAndWaitOnFirst(r1.Run, r1.Run, r1.Run)
+	err := CancelOnFirstFinish(r1.Run, r1.Run, r1.Run)
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func TestRunThree(t *testing.T) {
 func TestRunFail(t *testing.T) {
 	r1 := new(testRunnable)
 	r1.result = errors.New("fail")
-	err := RunAndWaitOnFirst(r1.Run)
+	err := CancelOnFirstFinish(r1.Run)
 	if err := AssertThat(err, NotNilValue()); err != nil {
 		t.Fatal(err)
 	}
