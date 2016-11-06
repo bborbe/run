@@ -2,10 +2,11 @@ package run
 
 import (
 	"errors"
-	"golang.org/x/net/context"
 	"os"
 	"sync"
 	"testing"
+
+	"golang.org/x/net/context"
 
 	. "github.com/bborbe/assert"
 	"github.com/golang/glog"
