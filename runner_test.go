@@ -6,7 +6,7 @@ import (
 	"sync"
 	"testing"
 
-	"golang.org/x/net/context"
+	"context"
 
 	. "github.com/bborbe/assert"
 	"github.com/golang/glog"
