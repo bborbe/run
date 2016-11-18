@@ -104,3 +104,14 @@ func TestAllWithError(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestAllRunThree(t *testing.T) {
+	r1 := new(testRunnable)
+	err := All(r1.Run, r1.Run, r1.Run)
+	if err := AssertThat(err, NilValue()); err != nil {
+		t.Fatal(err)
+	}
+	if err := AssertThat(r1.counter, Ge(1)); err != nil {
+		t.Fatal(err)
+	}
+}
