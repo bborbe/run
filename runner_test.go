@@ -1,12 +1,11 @@
 package run
 
 import (
+	"context"
 	"errors"
 	"os"
 	"sync"
 	"testing"
-
-	"context"
 
 	. "github.com/bborbe/assert"
 	"github.com/golang/glog"
@@ -18,14 +17,14 @@ func TestMain(m *testing.M) {
 	os.Exit(exit)
 }
 
-func TestRunNothing(t *testing.T) {
+func TestCancelOnFirstFinishRunNothing(t *testing.T) {
 	err := CancelOnFirstFinish()
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestRun(t *testing.T) {
+func TestCancelOnFirstFinishRun(t *testing.T) {
 	r1 := new(testRunnable)
 	err := CancelOnFirstFinish(r1.Run)
 	if err := AssertThat(err, NilValue()); err != nil {
@@ -36,7 +35,7 @@ func TestRun(t *testing.T) {
 	}
 }
 
-func TestRunThree(t *testing.T) {
+func TestCancelOnFirstFinishRunThree(t *testing.T) {
 	r1 := new(testRunnable)
 	err := CancelOnFirstFinish(r1.Run, r1.Run, r1.Run)
 	if err := AssertThat(err, NilValue()); err != nil {
@@ -47,7 +46,7 @@ func TestRunThree(t *testing.T) {
 	}
 }
 
-func TestRunFail(t *testing.T) {
+func TestCancelOnFirstFinishRunFail(t *testing.T) {
 	r1 := new(testRunnable)
 	r1.result = errors.New("fail")
 	err := CancelOnFirstFinish(r1.Run)
@@ -70,4 +69,38 @@ func (t *testRunnable) Run(context.Context) error {
 	t.counter++
 	t.mutex.Unlock()
 	return t.result
+}
+
+func TestAllRunNothing(t *testing.T) {
+	err := All()
+	if err := AssertThat(err, NilValue()); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestAllRunOne(t *testing.T) {
+	r1 := new(testRunnable)
+	err := All(r1.Run)
+	if err := AssertThat(err, NilValue()); err != nil {
+		t.Fatal(err)
+	}
+	if err := AssertThat(r1.counter, Is(1)); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestAllWithError(t *testing.T) {
+	r1 := new(testRunnable)
+	r1.result = errors.New("fail")
+	r2 := new(testRunnable)
+	err := All(r1.Run, r2.Run)
+	if err := AssertThat(err, NotNilValue()); err != nil {
+		t.Fatal(err)
+	}
+	if err := AssertThat(r1.counter, Is(1)); err != nil {
+		t.Fatal(err)
+	}
+	if err := AssertThat(r2.counter, Is(1)); err != nil {
+		t.Fatal(err)
+	}
 }

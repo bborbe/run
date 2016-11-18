@@ -3,10 +3,15 @@ package run
 import (
 	"context"
 
+	"bytes"
+	"sync"
+
 	"github.com/golang/glog"
 )
 
 type run func(context.Context) error
+
+type errorList []error
 
 func CancelOnFirstFinish(runners ...run) error {
 	if len(runners) == 0 {
@@ -23,4 +28,61 @@ func CancelOnFirstFinish(runners ...run) error {
 		}()
 	}
 	return <-errors
+}
+
+func All(runners ...run) error {
+	if len(runners) == 0 {
+		glog.V(2).Infof("nothing to run")
+		return nil
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	errorChannel := make(chan error, len(runners))
+	var errorWg sync.WaitGroup
+	var runWg sync.WaitGroup
+	var errs errorList
+	errorWg.Add(1)
+	go func() {
+		defer errorWg.Done()
+		for err := range errorChannel {
+			errs = append(errs, err)
+		}
+	}()
+
+	for _, runner := range runners {
+		run := runner
+		runWg.Add(1)
+		go func() {
+			defer runWg.Done()
+			if err := run(ctx); err != nil {
+				errorChannel <- err
+			}
+		}()
+	}
+	glog.V(4).Infof("wait on runs")
+	runWg.Wait()
+	close(errorChannel)
+	glog.V(4).Infof("wait on error collect")
+	errorWg.Wait()
+	glog.V(4).Infof("run all finished")
+	if len(errs) > 0 {
+		glog.V(4).Infof("found %d errors", len(errs))
+		return errs
+	}
+	glog.V(4).Infof("finished without errors")
+	return nil
+}
+
+func (e errorList) Error() string {
+	buf := bytes.NewBufferString("errors: ")
+	first := true
+	for _, err := range e {
+		if first {
+			first = false
+		} else {
+			buf.WriteString(", ")
+		}
+		buf.WriteString(err.Error())
+	}
+	return buf.String()
 }
