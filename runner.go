@@ -13,12 +13,12 @@ type run func(context.Context) error
 
 type errorList []error
 
-func CancelOnFirstFinish(runners ...run) error {
+func CancelOnFirstFinish(ctx context.Context, runners ...run) error {
 	if len(runners) == 0 {
 		glog.V(2).Infof("nothing to run")
 		return nil
 	}
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	errors := make(chan error)
 	for _, runner := range runners {
@@ -30,12 +30,12 @@ func CancelOnFirstFinish(runners ...run) error {
 	return <-errors
 }
 
-func All(runners ...run) error {
+func All(ctx context.Context, runners ...run) error {
 	if len(runners) == 0 {
 		glog.V(2).Infof("nothing to run")
 		return nil
 	}
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	errorChannel := make(chan error, len(runners))
 	var errorWg sync.WaitGroup

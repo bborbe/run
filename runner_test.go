@@ -18,7 +18,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestCancelOnFirstFinishRunNothing(t *testing.T) {
-	err := CancelOnFirstFinish()
+	err := CancelOnFirstFinish(context.Background())
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -26,7 +26,7 @@ func TestCancelOnFirstFinishRunNothing(t *testing.T) {
 
 func TestCancelOnFirstFinishRun(t *testing.T) {
 	r1 := new(testRunnable)
-	err := CancelOnFirstFinish(r1.Run)
+	err := CancelOnFirstFinish(context.Background(), r1.Run)
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func TestCancelOnFirstFinishRun(t *testing.T) {
 
 func TestCancelOnFirstFinishRunThree(t *testing.T) {
 	r1 := new(testRunnable)
-	err := CancelOnFirstFinish(r1.Run, r1.Run, r1.Run)
+	err := CancelOnFirstFinish(context.Background(), r1.Run, r1.Run, r1.Run)
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func TestCancelOnFirstFinishRunThree(t *testing.T) {
 func TestCancelOnFirstFinishRunFail(t *testing.T) {
 	r1 := new(testRunnable)
 	r1.result = errors.New("fail")
-	err := CancelOnFirstFinish(r1.Run)
+	err := CancelOnFirstFinish(context.Background(), r1.Run)
 	if err := AssertThat(err, NotNilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func (t *testRunnable) Run(context.Context) error {
 }
 
 func TestAllRunNothing(t *testing.T) {
-	err := All()
+	err := All(context.Background())
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -80,7 +80,7 @@ func TestAllRunNothing(t *testing.T) {
 
 func TestAllRunOne(t *testing.T) {
 	r1 := new(testRunnable)
-	err := All(r1.Run)
+	err := All(context.Background(), r1.Run)
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -93,7 +93,7 @@ func TestAllWithError(t *testing.T) {
 	r1 := new(testRunnable)
 	r1.result = errors.New("fail")
 	r2 := new(testRunnable)
-	err := All(r1.Run, r2.Run)
+	err := All(context.Background(), r1.Run, r2.Run)
 	if err := AssertThat(err, NotNilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -107,7 +107,7 @@ func TestAllWithError(t *testing.T) {
 
 func TestAllRunThree(t *testing.T) {
 	r1 := new(testRunnable)
-	err := All(r1.Run, r1.Run, r1.Run)
+	err := All(context.Background(), r1.Run, r1.Run, r1.Run)
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
