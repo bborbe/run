@@ -3,15 +3,13 @@ package run
 import (
 	"context"
 
-	"bytes"
 	"sync"
 
+	"github.com/bborbe/run/errors"
 	"github.com/golang/glog"
 )
 
 type run func(context.Context) error
-
-type errorList []error
 
 func CancelOnFirstFinish(ctx context.Context, runners ...run) error {
 	if len(runners) == 0 {
@@ -40,7 +38,7 @@ func All(ctx context.Context, runners ...run) error {
 	errorChannel := make(chan error, len(runners))
 	var errorWg sync.WaitGroup
 	var runWg sync.WaitGroup
-	var errs errorList
+	var errs []error
 	errorWg.Add(1)
 	go func() {
 		defer errorWg.Done()
@@ -67,22 +65,8 @@ func All(ctx context.Context, runners ...run) error {
 	glog.V(4).Infof("run all finished")
 	if len(errs) > 0 {
 		glog.V(4).Infof("found %d errors", len(errs))
-		return errs
+		return errors.New(errs...)
 	}
 	glog.V(4).Infof("finished without errors")
 	return nil
-}
-
-func (e errorList) Error() string {
-	buf := bytes.NewBufferString("errors: ")
-	first := true
-	for _, err := range e {
-		if first {
-			first = false
-		} else {
-			buf.WriteString(", ")
-		}
-		buf.WriteString(err.Error())
-	}
-	return buf.String()
 }
