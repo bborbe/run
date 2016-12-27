@@ -2,7 +2,7 @@
 
 ## Continuous integration
 
-[Jenkins](https://www.benjamin-borbe.de/jenkins/job/Go-Run/)
+[Jenkins](https://jenkins.benjamin-borbe.de/job/Go-Run/)
 
 ## Copyright and license
 
