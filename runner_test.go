@@ -9,6 +9,7 @@ import (
 
 	. "github.com/bborbe/assert"
 	"github.com/golang/glog"
+	"time"
 )
 
 func TestMain(m *testing.M) {
@@ -19,6 +20,22 @@ func TestMain(m *testing.M) {
 
 func TestCancelOnFirstFinishRunNothing(t *testing.T) {
 	err := CancelOnFirstFinish(context.Background())
+	if err := AssertThat(err, NilValue()); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCancelOnFirstFinishReturnOnContextCancel(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		<-time.NewTicker(100 * time.Millisecond).C
+		cancel()
+	}()
+	err := CancelOnFirstFinish(ctx,
+		func(ctx context.Context) error {
+			<-time.NewTicker(time.Minute).C
+			return nil
+		})
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -54,6 +71,29 @@ func TestCancelOnFirstFinishRunFail(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := AssertThat(r1.counter, Is(1)); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCancelOnFirstErrorRunNothing(t *testing.T) {
+	err := CancelOnFirstError(context.Background())
+	if err := AssertThat(err, NilValue()); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCancelOnFirstErrorReturnOnContextCancel(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		<-time.NewTicker(100 * time.Millisecond).C
+		cancel()
+	}()
+	err := CancelOnFirstError(ctx,
+		func(ctx context.Context) error {
+			<-time.NewTicker(time.Minute).C
+			return nil
+		})
+	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
 }

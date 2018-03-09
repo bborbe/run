@@ -25,7 +25,49 @@ func CancelOnFirstFinish(ctx context.Context, runners ...run) error {
 			errors <- run(ctx)
 		}()
 	}
-	return <-errors
+	select {
+	case err := <-errors:
+		return err
+	case <-ctx.Done():
+		glog.V(1).Infof("context canceled return")
+		return nil
+	}
+}
+
+func CancelOnFirstError(ctx context.Context, runners ...run) error {
+	if len(runners) == 0 {
+		glog.V(2).Infof("nothing to run")
+		return nil
+	}
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	errors := make(chan error)
+	done := make(chan struct{})
+	var wg sync.WaitGroup
+	for _, runner := range runners {
+		wg.Add(1)
+		run := runner
+		go func() {
+			defer wg.Done()
+			if result := run(ctx); result != nil {
+				errors <- result
+			}
+		}()
+	}
+	go func() {
+		wg.Wait()
+		done <- struct{}{}
+	}()
+	select {
+	case err := <-errors:
+		return err
+	case <-done:
+		return nil
+	case <-ctx.Done():
+		glog.V(1).Infof("context canceled return")
+		return nil
+	}
+
 }
 
 func All(ctx context.Context, runners ...run) error {
