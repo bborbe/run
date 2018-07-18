@@ -6,11 +6,11 @@ import (
 	"os"
 	"sync"
 	"testing"
+	"time"
 
 	. "github.com/bborbe/assert"
-	"github.com/golang/glog"
-	"time"
 	"github.com/bborbe/run"
+	"github.com/golang/glog"
 )
 
 func TestMain(m *testing.M) {

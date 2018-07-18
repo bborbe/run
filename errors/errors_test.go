@@ -1,8 +1,8 @@
 package errors
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func TestNewEmptyError(t *testing.T) {
