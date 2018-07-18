@@ -1,4 +1,4 @@
-package run
+package run_test
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 	. "github.com/bborbe/assert"
 	"github.com/golang/glog"
 	"time"
+	"github.com/bborbe/run"
 )
 
 func TestMain(m *testing.M) {
@@ -19,7 +20,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestCancelOnFirstFinishRunNothing(t *testing.T) {
-	err := CancelOnFirstFinish(context.Background())
+	err := run.CancelOnFirstFinish(context.Background())
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -31,7 +32,7 @@ func TestCancelOnFirstFinishReturnOnContextCancel(t *testing.T) {
 		<-time.NewTicker(100 * time.Millisecond).C
 		cancel()
 	}()
-	err := CancelOnFirstFinish(ctx,
+	err := run.CancelOnFirstFinish(ctx,
 		func(ctx context.Context) error {
 			<-time.NewTicker(time.Minute).C
 			return nil
@@ -43,7 +44,7 @@ func TestCancelOnFirstFinishReturnOnContextCancel(t *testing.T) {
 
 func TestCancelOnFirstFinishRun(t *testing.T) {
 	r1 := new(testRunnable)
-	err := CancelOnFirstFinish(context.Background(), r1.Run)
+	err := run.CancelOnFirstFinish(context.Background(), r1.Run)
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -54,7 +55,7 @@ func TestCancelOnFirstFinishRun(t *testing.T) {
 
 func TestCancelOnFirstFinishRunThree(t *testing.T) {
 	r1 := new(testRunnable)
-	err := CancelOnFirstFinish(context.Background(), r1.Run, r1.Run, r1.Run)
+	err := run.CancelOnFirstFinish(context.Background(), r1.Run, r1.Run, r1.Run)
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +67,7 @@ func TestCancelOnFirstFinishRunThree(t *testing.T) {
 func TestCancelOnFirstFinishRunFail(t *testing.T) {
 	r1 := new(testRunnable)
 	r1.result = errors.New("fail")
-	err := CancelOnFirstFinish(context.Background(), r1.Run)
+	err := run.CancelOnFirstFinish(context.Background(), r1.Run)
 	if err := AssertThat(err, NotNilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -76,7 +77,7 @@ func TestCancelOnFirstFinishRunFail(t *testing.T) {
 }
 
 func TestCancelOnFirstErrorRunNothing(t *testing.T) {
-	err := CancelOnFirstError(context.Background())
+	err := run.CancelOnFirstError(context.Background())
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -88,7 +89,7 @@ func TestCancelOnFirstErrorReturnOnContextCancel(t *testing.T) {
 		<-time.NewTicker(100 * time.Millisecond).C
 		cancel()
 	}()
-	err := CancelOnFirstError(ctx,
+	err := run.CancelOnFirstError(ctx,
 		func(ctx context.Context) error {
 			<-time.NewTicker(time.Minute).C
 			return nil
@@ -112,7 +113,7 @@ func (t *testRunnable) Run(context.Context) error {
 }
 
 func TestAllRunNothing(t *testing.T) {
-	err := All(context.Background())
+	err := run.All(context.Background())
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -120,7 +121,7 @@ func TestAllRunNothing(t *testing.T) {
 
 func TestAllRunOne(t *testing.T) {
 	r1 := new(testRunnable)
-	err := All(context.Background(), r1.Run)
+	err := run.All(context.Background(), r1.Run)
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -133,7 +134,7 @@ func TestAllWithError(t *testing.T) {
 	r1 := new(testRunnable)
 	r1.result = errors.New("fail")
 	r2 := new(testRunnable)
-	err := All(context.Background(), r1.Run, r2.Run)
+	err := run.All(context.Background(), r1.Run, r2.Run)
 	if err := AssertThat(err, NotNilValue()); err != nil {
 		t.Fatal(err)
 	}
@@ -147,11 +148,61 @@ func TestAllWithError(t *testing.T) {
 
 func TestAllRunThree(t *testing.T) {
 	r1 := new(testRunnable)
-	err := All(context.Background(), r1.Run, r1.Run, r1.Run)
+	err := run.All(context.Background(), r1.Run, r1.Run, r1.Run)
 	if err := AssertThat(err, NilValue()); err != nil {
 		t.Fatal(err)
 	}
 	if err := AssertThat(r1.counter, Ge(1)); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestSequential(t *testing.T) {
+	r1 := new(testRunnable)
+	r2 := new(testRunnable)
+	r2.result = errors.New("fail")
+	r3 := new(testRunnable)
+	err := run.Sequential(context.Background(), r1.Run, r2.Run, r3.Run)
+	if err := AssertThat(err, NotNilValue()); err != nil {
+		t.Fatal(err)
+	}
+	if err := AssertThat(r1.counter, Eq(1)); err != nil {
+		t.Fatal(err)
+	}
+	if err := AssertThat(r2.counter, Eq(1)); err != nil {
+		t.Fatal(err)
+	}
+	if err := AssertThat(r3.counter, Eq(0)); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestSequentialCancelsOnContextCancel(t *testing.T) {
+	f := func(ctx context.Context) error {
+		<-ctx.Done()
+		return errors.New("banana")
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := AssertThat(run.Sequential(ctx, f), NilValue()); err != nil {
+			t.Fatal(err)
+		}
+	}()
+	cancel()
+	wg.Wait()
+}
+
+func TestSequentialDoesNotCallFunctionIfContextIsCanceled(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	r1 := new(testRunnable)
+	if err := AssertThat(run.Sequential(ctx, r1.Run), NilValue()); err != nil {
+		t.Fatal(err)
+	}
+	if err := AssertThat(r1.counter, Eq(0)); err != nil {
 		t.Fatal(err)
 	}
 }

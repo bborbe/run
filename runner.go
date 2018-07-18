@@ -113,3 +113,19 @@ func All(ctx context.Context, runners ...RunFunc) error {
 	glog.V(4).Infof("finished without errors")
 	return nil
 }
+
+func Sequential(ctx context.Context, funcs ...func(ctx context.Context) error) (err error) {
+	for _, fn := range funcs {
+		select {
+		case <-ctx.Done():
+			glog.V(1).Infof("context canceled return")
+			return nil
+		default:
+			if err = fn(ctx); err != nil {
+				return
+			}
+		}
+	}
+	return
+
+}
