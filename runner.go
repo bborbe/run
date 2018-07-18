@@ -11,6 +11,7 @@ import (
 
 type RunFunc func(context.Context) error
 
+// CancelOnFirstFinish executes all given functions. After the first function finishes, any remaining functions will be canceled.
 func CancelOnFirstFinish(ctx context.Context, runners ...RunFunc) error {
 	if len(runners) == 0 {
 		glog.V(2).Infof("nothing to run")
@@ -34,6 +35,7 @@ func CancelOnFirstFinish(ctx context.Context, runners ...RunFunc) error {
 	}
 }
 
+// CancelOnFirstError executes all given functions. When a function encounters an error all remaining functions will be canceled.
 func CancelOnFirstError(ctx context.Context, runners ...RunFunc) error {
 	if len(runners) == 0 {
 		glog.V(2).Infof("nothing to run")
@@ -67,9 +69,9 @@ func CancelOnFirstError(ctx context.Context, runners ...RunFunc) error {
 		glog.V(1).Infof("context canceled return")
 		return nil
 	}
-
 }
 
+// All executes all given functions. Errors are wrapped into one aggregate error.
 func All(ctx context.Context, runners ...RunFunc) error {
 	if len(runners) == 0 {
 		glog.V(2).Infof("nothing to run")
@@ -88,7 +90,6 @@ func All(ctx context.Context, runners ...RunFunc) error {
 			errs = append(errs, err)
 		}
 	}()
-
 	for _, runner := range runners {
 		run := runner
 		runWg.Add(1)
