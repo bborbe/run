@@ -114,7 +114,7 @@ func All(ctx context.Context, runners ...RunFunc) error {
 	return nil
 }
 
-func Sequential(ctx context.Context, funcs ...func(ctx context.Context) error) (err error) {
+func Sequential(ctx context.Context, funcs ...RunFunc) (err error) {
 	for _, fn := range funcs {
 		select {
 		case <-ctx.Done():
@@ -127,5 +127,4 @@ func Sequential(ctx context.Context, funcs ...func(ctx context.Context) error) (
 		}
 	}
 	return
-
 }
