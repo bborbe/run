@@ -7,11 +7,11 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// NewMetrics create prometheus metrics for the given RunFunc.
+// NewMetrics create prometheus metrics for the given Func.
 func NewMetrics(
 	namespace string,
 	subsystem string,
-	fn RunFunc,
+	fn Func,
 ) func(ctx context.Context) error {
 	started := prometheus.NewGauge(prometheus.GaugeOpts{
 		Namespace: namespace,
@@ -43,8 +43,8 @@ func NewMetrics(
 	}
 }
 
-// SkipErrors runs the given RunFunc and returns always nil.
-func SkipErrors(fn RunFunc) func(ctx context.Context) error {
+// SkipErrors runs the given Func and returns always nil.
+func SkipErrors(fn Func) func(ctx context.Context) error {
 	return func(ctx context.Context) error {
 		if err := fn(ctx); err != nil {
 			glog.Warningf("run failed: %v", err)

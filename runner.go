@@ -9,10 +9,9 @@ import (
 	"github.com/golang/glog"
 )
 
-type RunFunc func(context.Context) error
 
 // CancelOnFirstFinish executes all given functions. After the first function finishes, any remaining functions will be canceled.
-func CancelOnFirstFinish(ctx context.Context, funcs ...RunFunc) error {
+func CancelOnFirstFinish(ctx context.Context, funcs ...Func) error {
 	if len(funcs) == 0 {
 		glog.V(2).Infof("nothing to run")
 		return nil
@@ -24,7 +23,7 @@ func CancelOnFirstFinish(ctx context.Context, funcs ...RunFunc) error {
 	var wg sync.WaitGroup
 	for _, runner := range funcs {
 		wg.Add(1)
-		go func(run RunFunc) {
+		go func(run Func) {
 			defer wg.Done()
 			err := run(ctx)
 			select {
@@ -44,7 +43,7 @@ func CancelOnFirstFinish(ctx context.Context, funcs ...RunFunc) error {
 }
 
 // CancelOnFirstError executes all given functions. When a function encounters an error all remaining functions will be canceled.
-func CancelOnFirstError(ctx context.Context, funcs ...RunFunc) error {
+func CancelOnFirstError(ctx context.Context, funcs ...Func) error {
 	if len(funcs) == 0 {
 		glog.V(2).Infof("nothing to run")
 		return nil
@@ -56,7 +55,7 @@ func CancelOnFirstError(ctx context.Context, funcs ...RunFunc) error {
 	var wg sync.WaitGroup
 	for _, runner := range funcs {
 		wg.Add(1)
-		go func(run RunFunc) {
+		go func(run Func) {
 			defer wg.Done()
 			if err := run(ctx); err != nil {
 				select {
@@ -77,7 +76,7 @@ func CancelOnFirstError(ctx context.Context, funcs ...RunFunc) error {
 }
 
 // All executes all given functions. Errors are wrapped into one aggregate error.
-func All(ctx context.Context, funcs ...RunFunc) error {
+func All(ctx context.Context, funcs ...Func) error {
 	if len(funcs) == 0 {
 		glog.V(2).Infof("nothing to run")
 		return nil
@@ -88,7 +87,7 @@ func All(ctx context.Context, funcs ...RunFunc) error {
 	var wg sync.WaitGroup
 	for _, runner := range funcs {
 		wg.Add(1)
-		go func(run RunFunc) {
+		go func(run Func) {
 			defer wg.Done()
 			if err := run(ctx); err != nil {
 				errors <- err
@@ -103,7 +102,7 @@ func All(ctx context.Context, funcs ...RunFunc) error {
 }
 
 // Sequential run every given function.
-func Sequential(ctx context.Context, funcs ...RunFunc) (err error) {
+func Sequential(ctx context.Context, funcs ...Func) (err error) {
 	if len(funcs) == 0 {
 		glog.V(2).Infof("nothing to run")
 		return nil
