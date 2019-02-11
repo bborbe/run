@@ -1,4 +1,4 @@
-package errors
+package run
 
 import (
 	"fmt"
@@ -6,14 +6,14 @@ import (
 )
 
 func TestNewEmptyError(t *testing.T) {
-	err := New()
+	err := NewErrorList()
 	if err != nil {
 		t.Fatalf("nil expected")
 	}
 }
 
 func TestNewErorrList(t *testing.T) {
-	err := New(fmt.Errorf("test"))
+	err := NewErrorList(fmt.Errorf("test"))
 	if err == nil {
 		t.Fatalf("nil not expected")
 	}
@@ -25,7 +25,7 @@ func TestNewErorrList(t *testing.T) {
 func TestNewByChanEmptyError(t *testing.T) {
 	c := make(chan error, 10)
 	close(c)
-	err := NewByChan(c)
+	err := NewErrorListByChan(c)
 	if err != nil {
 		t.Fatalf("nil expected")
 	}
@@ -35,7 +35,7 @@ func TestNewByChanErorrList(t *testing.T) {
 	c := make(chan error, 10)
 	c <- fmt.Errorf("test")
 	close(c)
-	err := NewByChan(c)
+	err := NewErrorListByChan(c)
 	if err == nil {
 		t.Fatalf("nil not expected")
 	}

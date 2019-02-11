@@ -1,22 +1,22 @@
-package errors
+package run
 
 import "bytes"
 
-type errorList []error
+type ErrorList []error
 
-func New(errors ...error) errorList {
-	return errorList(errors)
+func NewErrorList(errors ...error) ErrorList {
+	return ErrorList(errors)
 }
 
-func NewByChan(errors <-chan error) errorList {
+func NewErrorListByChan(errors <-chan error) ErrorList {
 	var list []error
 	for err := range errors {
 		list = append(list, err)
 	}
-	return New(list...)
+	return NewErrorList(list...)
 }
 
-func (e errorList) Error() string {
+func (e ErrorList) Error() string {
 	buf := bytes.NewBufferString("errors: ")
 	first := true
 	for _, err := range e {

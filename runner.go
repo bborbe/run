@@ -2,10 +2,7 @@ package run
 
 import (
 	"context"
-
 	"sync"
-
-	"github.com/bborbe/run/errors"
 	"github.com/golang/glog"
 )
 
@@ -108,7 +105,7 @@ func All(ctx context.Context, runners ...RunFunc) error {
 	glog.V(4).Infof("run all finished")
 	if len(errs) > 0 {
 		glog.V(4).Infof("found %d errors", len(errs))
-		return errors.New(errs...)
+		return NewErrorList(errs...)
 	}
 	glog.V(4).Infof("finished without errors")
 	return nil
