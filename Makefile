@@ -10,7 +10,6 @@ precommit: deps format test check addlicense
 
 deps:
 	go mod tidy
-	go mod vendor
 
 format:
 	go get golang.org/x/tools/cmd/goimports
