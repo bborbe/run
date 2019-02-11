@@ -6,9 +6,9 @@ package run
 import (
 	"context"
 	"sync"
+
 	"github.com/golang/glog"
 )
-
 
 // CancelOnFirstFinish executes all given functions. After the first function finishes, any remaining functions will be canceled.
 func CancelOnFirstFinish(ctx context.Context, funcs ...Func) error {
