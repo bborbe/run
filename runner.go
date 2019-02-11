@@ -1,120 +1,112 @@
+// Copyright (c) 2019 Benjamin Borbe All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
 package run
 
 import (
 	"context"
-
 	"sync"
 
-	"github.com/bborbe/run/errors"
 	"github.com/golang/glog"
 )
 
-type RunFunc func(context.Context) error
-
 // CancelOnFirstFinish executes all given functions. After the first function finishes, any remaining functions will be canceled.
-func CancelOnFirstFinish(ctx context.Context, runners ...RunFunc) error {
-	if len(runners) == 0 {
+func CancelOnFirstFinish(ctx context.Context, funcs ...Func) error {
+	if len(funcs) == 0 {
 		glog.V(2).Infof("nothing to run")
 		return nil
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	errors := make(chan error)
-	for _, runner := range runners {
-		run := runner
-		go func() {
-			errors <- run(ctx)
-		}()
+	result := make(chan error)
+	defer close(result)
+	var wg sync.WaitGroup
+	for _, runner := range funcs {
+		wg.Add(1)
+		go func(run Func) {
+			defer wg.Done()
+			err := run(ctx)
+			select {
+			case result <- err:
+			default:
+			}
+		}(runner)
 	}
+	var err error
 	select {
-	case err := <-errors:
-		return err
+	case err = <-result:
+		cancel()
 	case <-ctx.Done():
-		glog.V(1).Infof("context canceled return")
-		return nil
 	}
+	wg.Wait()
+	return err
 }
 
 // CancelOnFirstError executes all given functions. When a function encounters an error all remaining functions will be canceled.
-func CancelOnFirstError(ctx context.Context, runners ...RunFunc) error {
-	if len(runners) == 0 {
+func CancelOnFirstError(ctx context.Context, funcs ...Func) error {
+	if len(funcs) == 0 {
 		glog.V(2).Infof("nothing to run")
 		return nil
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	errors := make(chan error)
-	done := make(chan struct{})
+	result := make(chan error)
+	defer close(result)
 	var wg sync.WaitGroup
-	for _, runner := range runners {
+	for _, runner := range funcs {
 		wg.Add(1)
-		run := runner
-		go func() {
+		go func(run Func) {
 			defer wg.Done()
-			if result := run(ctx); result != nil {
-				errors <- result
+			if err := run(ctx); err != nil {
+				select {
+				case result <- err:
+				default:
+				}
 			}
-		}()
+		}(runner)
 	}
-	go func() {
-		wg.Wait()
-		done <- struct{}{}
-	}()
+	var err error
 	select {
-	case err := <-errors:
-		return err
-	case <-done:
-		return nil
+	case err = <-result:
+		cancel()
 	case <-ctx.Done():
-		glog.V(1).Infof("context canceled return")
-		return nil
 	}
+	wg.Wait()
+	return err
 }
 
 // All executes all given functions. Errors are wrapped into one aggregate error.
-func All(ctx context.Context, runners ...RunFunc) error {
-	if len(runners) == 0 {
+func All(ctx context.Context, funcs ...Func) error {
+	if len(funcs) == 0 {
 		glog.V(2).Infof("nothing to run")
 		return nil
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	errorChannel := make(chan error, len(runners))
-	var errorWg sync.WaitGroup
-	var runWg sync.WaitGroup
-	var errs []error
-	errorWg.Add(1)
-	go func() {
-		defer errorWg.Done()
-		for err := range errorChannel {
-			errs = append(errs, err)
-		}
-	}()
-	for _, runner := range runners {
-		run := runner
-		runWg.Add(1)
-		go func() {
-			defer runWg.Done()
+	errors := make(chan error, len(funcs))
+	var wg sync.WaitGroup
+	for _, runner := range funcs {
+		wg.Add(1)
+		go func(run Func) {
+			defer wg.Done()
 			if err := run(ctx); err != nil {
-				errorChannel <- err
+				errors <- err
 			}
-		}()
+		}(runner)
 	}
-	glog.V(4).Infof("wait on runs")
-	runWg.Wait()
-	close(errorChannel)
-	glog.V(4).Infof("wait on error collect")
-	errorWg.Wait()
-	glog.V(4).Infof("run all finished")
-	if len(errs) > 0 {
-		glog.V(4).Infof("found %d errors", len(errs))
-		return errors.New(errs...)
-	}
-	glog.V(4).Infof("finished without errors")
-	return nil
+	go func() {
+		wg.Wait()
+		close(errors)
+	}()
+	return NewErrorListByChan(errors)
 }
 
-func Sequential(ctx context.Context, funcs ...RunFunc) (err error) {
+// Sequential run every given function.
+func Sequential(ctx context.Context, funcs ...Func) (err error) {
+	if len(funcs) == 0 {
+		glog.V(2).Infof("nothing to run")
+		return nil
+	}
 	for _, fn := range funcs {
 		select {
 		case <-ctx.Done():
