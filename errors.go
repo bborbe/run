@@ -17,7 +17,7 @@ func NewErrorList(errors ...error) ErrorList {
 	return ErrorList(errors)
 }
 
-// NewErrorList create a ErrorList with the given error channel.
+// NewErrorListByChan create a ErrorList with the given error channel.
 func NewErrorListByChan(errors <-chan error) ErrorList {
 	var list []error
 	for err := range errors {

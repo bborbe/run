@@ -28,6 +28,12 @@ func (t *testRunnable) Run(context.Context) error {
 	return t.result
 }
 
+func (t *testRunnable) Counter() int {
+	defer t.mutex.Unlock()
+	t.mutex.Lock()
+	return t.counter
+}
+
 var _ = Describe("CancelOnFirstFinish", func() {
 	It("TestCancelOnFirstFinishRunNothing", func() {
 		err := run.CancelOnFirstFinish(context.Background())
@@ -51,22 +57,21 @@ var _ = Describe("CancelOnFirstFinish", func() {
 		r1 := new(testRunnable)
 		err := run.CancelOnFirstFinish(context.Background(), r1.Run)
 		Expect(err).To(BeNil())
-		Expect(r1.counter).To(Equal(1))
+		Expect(r1.Counter()).To(Equal(1))
 	})
 	It("TestCancelOnFirstFinishRunThree", func() {
 		r1 := new(testRunnable)
 		err := run.CancelOnFirstFinish(context.Background(), r1.Run, r1.Run, r1.Run)
 		Expect(err).To(BeNil())
-		Expect(r1.counter).To(BeNumerically(">=", 1))
+		Expect(r1.Counter()).To(BeNumerically(">=", 1))
 	})
 	It("TestCancelOnFirstFinishRunFail", func() {
 		r1 := new(testRunnable)
 		r1.result = errors.New("fail")
 		err := run.CancelOnFirstFinish(context.Background(), r1.Run)
 		Expect(err).NotTo(BeNil())
-		Expect(r1.counter).To(Equal(1))
+		Expect(r1.Counter()).To(Equal(1))
 	})
-
 })
 
 var _ = Describe("CancelOnFirstError", func() {
@@ -78,18 +83,26 @@ var _ = Describe("CancelOnFirstError", func() {
 		r1 := new(testRunnable)
 		err := run.CancelOnFirstError(context.Background(), r1.Run, r1.Run, r1.Run)
 		Expect(err).To(BeNil())
-		Expect(r1.counter).To(Equal(3))
+		Expect(r1.Counter()).To(Equal(3))
+	})
+	It("returns error", func() {
+		r1 := new(testRunnable)
+		r2 := new(testRunnable)
+		r2.result = errors.New("banana")
+		r3 := new(testRunnable)
+		err := run.CancelOnFirstError(context.Background(), r1.Run, r2.Run, r3.Run)
+		Expect(err).To(HaveOccurred())
 	})
 	It("returns on context cancel", func() {
-		ctx, cancel := context.WithCancel(context.Background())
-		go func() {
-			<-time.NewTicker(100 * time.Millisecond).C
-			cancel()
-		}()
+		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
+		defer cancel()
 		err := run.CancelOnFirstError(
 			ctx,
 			func(ctx context.Context) error {
-				<-time.NewTicker(time.Minute).C
+				select {
+				case <-time.NewTicker(time.Minute).C:
+				case <-ctx.Done():
+				}
 				return nil
 			},
 		)
@@ -107,7 +120,7 @@ var _ = Describe("All", func() {
 		r1 := new(testRunnable)
 		err := run.All(context.Background(), r1.Run)
 		Expect(err).To(BeNil())
-		Expect(r1.counter).To(Equal(1))
+		Expect(r1.Counter()).To(Equal(1))
 	})
 	It("with errorr", func() {
 		r1 := new(testRunnable)
@@ -115,14 +128,14 @@ var _ = Describe("All", func() {
 		r2 := new(testRunnable)
 		err := run.All(context.Background(), r1.Run, r2.Run)
 		Expect(err).NotTo(BeNil())
-		Expect(r1.counter).To(Equal(1))
-		Expect(r2.counter).To(Equal(1))
+		Expect(r1.Counter()).To(Equal(1))
+		Expect(r2.Counter()).To(Equal(1))
 	})
 	It("run three", func() {
 		r1 := new(testRunnable)
 		err := run.All(context.Background(), r1.Run, r1.Run, r1.Run)
 		Expect(err).To(BeNil())
-		Expect(r1.counter).To(BeNumerically(">=", 1))
+		Expect(r1.Counter()).To(BeNumerically(">=", 1))
 	})
 })
 
@@ -135,9 +148,9 @@ var _ = Describe("Sequential", func() {
 		r3 := new(testRunnable)
 		err := run.Sequential(context.Background(), r1.Run, r2.Run, r3.Run)
 		Expect(err).NotTo(BeNil())
-		Expect(r1.counter).To(Equal(1))
-		Expect(r2.counter).To(Equal(1))
-		Expect(r3.counter).To(Equal(0))
+		Expect(r1.Counter()).To(Equal(1))
+		Expect(r2.Counter()).To(Equal(1))
+		Expect(r3.Counter()).To(Equal(0))
 	})
 	It("returns if context is canceled", func() {
 		f := func(ctx context.Context) error {
@@ -160,6 +173,6 @@ var _ = Describe("Sequential", func() {
 		r1 := new(testRunnable)
 		err := run.Sequential(ctx, r1.Run)
 		Expect(err).To(BeNil())
-		Expect(r1.counter).To(Equal(0))
+		Expect(r1.Counter()).To(Equal(0))
 	})
 })

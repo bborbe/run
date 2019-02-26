@@ -1,15 +1,15 @@
 
-prepare:
+deps:
 	go get -u golang.org/x/tools/cmd/goimports
 	go get -u github.com/google/addlicense
 	go get -u github.com/golang/lint/golint
 	go get -u github.com/kisielk/errcheck
 
-precommit: deps format test check addlicense
+precommit: ensure format test check addlicense
 	@echo "ready to commit"
 
-deps:
-	go mod tidy
+ensure:
+	GO111MODULE=on go mod tidy
 
 format:
 	go get golang.org/x/tools/cmd/goimports
