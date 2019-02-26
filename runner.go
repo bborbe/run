@@ -18,28 +18,23 @@ func CancelOnFirstFinish(ctx context.Context, funcs ...Func) error {
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+
 	result := make(chan error)
-	defer close(result)
 	var wg sync.WaitGroup
 	for _, runner := range funcs {
 		wg.Add(1)
 		go func(run Func) {
 			defer wg.Done()
 			err := run(ctx)
-			select {
-			case result <- err:
-			default:
-			}
+			cancel()
+			result <- err
 		}(runner)
 	}
-	var err error
-	select {
-	case err = <-result:
-		cancel()
-	case <-ctx.Done():
-	}
-	wg.Wait()
-	return err
+	go func() {
+		wg.Wait()
+		close(result)
+	}()
+	return <-result
 }
 
 // CancelOnFirstError executes all given functions. When a function encounters an error all remaining functions will be canceled.
@@ -65,13 +60,16 @@ func CancelOnFirstError(ctx context.Context, funcs ...Func) error {
 			}
 		}(runner)
 	}
+	go func() {
+		wg.Wait()
+		cancel()
+	}()
 	var err error
 	select {
 	case err = <-result:
 		cancel()
 	case <-ctx.Done():
 	}
-	wg.Wait()
 	return err
 }
 
