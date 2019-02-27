@@ -7,6 +7,7 @@ import (
 	"context"
 	"runtime"
 	"sync"
+	"time"
 )
 
 // CancelOnFirstFinish executes all given functions. After the first function finishes, any remaining functions will be canceled.
@@ -94,4 +95,16 @@ func onlyNotNil(ch <-chan error) <-chan error {
 		}
 	}()
 	return errors
+}
+
+// Delayed wraps the given function that delays the execution.
+func Delayed(fn Func, duration time.Duration) Func {
+	return func(ctx context.Context) error {
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-time.NewTimer(duration).C:
+			return fn(ctx)
+		}
+	}
 }

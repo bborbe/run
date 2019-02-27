@@ -176,3 +176,33 @@ var _ = Describe("Sequential", func() {
 		Expect(r1.Counter()).To(Equal(0))
 	})
 })
+
+var _ = Describe("Delayed", func() {
+
+	It("calls the given function", func() {
+		r1 := new(testRunnable)
+		fn := run.Delayed(r1.Run, time.Nanosecond)
+		err := fn(context.Background())
+		Expect(err).NotTo(HaveOccurred())
+		Expect(r1.Counter()).To(Equal(1))
+	})
+
+	It("returns errors of the called functio", func() {
+		r1 := new(testRunnable)
+		r1.result = errors.New("banana")
+		fn := run.Delayed(r1.Run, time.Nanosecond)
+		err := fn(context.Background())
+		Expect(err).To(Equal(r1.result))
+		Expect(r1.Counter()).To(Equal(1))
+	})
+
+	It("does not call function if cancel in delay", func() {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
+		defer cancel()
+		r1 := new(testRunnable)
+		fn := run.Delayed(r1.Run, time.Minute)
+		err := fn(ctx)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(r1.Counter()).To(Equal(0))
+	})
+})
