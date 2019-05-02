@@ -7,6 +7,7 @@ package run
 import (
 	"context"
 
+	"github.com/getsentry/raven-go"
 	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -52,6 +53,17 @@ func SkipErrors(fn Func) func(ctx context.Context) error {
 	return func(ctx context.Context) error {
 		if err := fn(ctx); err != nil {
 			glog.Warningf("run failed: %v", err)
+		}
+		return nil
+	}
+}
+
+// SkipErrorsAndReport runs the given Func, report errors to sentry and returns always nil.
+func SkipErrorsAndReport(fn Func) func(ctx context.Context) error {
+	return func(ctx context.Context) error {
+		if err := fn(ctx); err != nil {
+			glog.Warningf("run failed: %v", err)
+			raven.CaptureErrorAndWait(err, map[string]string{})
 		}
 		return nil
 	}
