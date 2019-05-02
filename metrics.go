@@ -7,8 +7,6 @@ package run
 import (
 	"context"
 
-	"github.com/getsentry/raven-go"
-	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
