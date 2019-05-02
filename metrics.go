@@ -47,24 +47,3 @@ func NewMetrics(
 		return nil
 	}
 }
-
-// SkipErrors runs the given Func and returns always nil.
-func SkipErrors(fn Func) func(ctx context.Context) error {
-	return func(ctx context.Context) error {
-		if err := fn(ctx); err != nil {
-			glog.Warningf("run failed: %v", err)
-		}
-		return nil
-	}
-}
-
-// SkipErrorsAndReport runs the given Func, report errors to sentry and returns always nil.
-func SkipErrorsAndReport(fn Func) func(ctx context.Context) error {
-	return func(ctx context.Context) error {
-		if err := fn(ctx); err != nil {
-			glog.Warningf("run failed: %v", err)
-			raven.CaptureErrorAndWait(err, map[string]string{})
-		}
-		return nil
-	}
-}
