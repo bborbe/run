@@ -21,6 +21,11 @@ var _ = Describe("Errors", func() {
 		Expect(err).NotTo(BeNil())
 		Expect(err.Error()).To(Equal("errors: test"))
 	})
+	It("multi errors", func() {
+		err := run.NewErrorList(fmt.Errorf("test1"), fmt.Errorf("test2"))
+		Expect(err).NotTo(BeNil())
+		Expect(err.Error()).To(Equal("errors: test1, test2"))
+	})
 	It("TestNewByChanEmptyError", func() {
 		c := make(chan error, 10)
 		close(c)

@@ -5,6 +5,7 @@ package run_test
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/bborbe/run"
@@ -13,26 +14,40 @@ import (
 )
 
 var _ = Describe("ParallelSkipper", func() {
+	var ctx context.Context
+	BeforeEach(func() {
+		ctx = context.Background()
+	})
 	It("runs", func() {
 		p := run.NewParallelSkipper()
 		counter := 0
-		p.SkipParallel(func(ctx context.Context) error {
+		fn := p.SkipParallel(func(ctx context.Context) error {
 			counter++
 			return nil
-		})(context.Background())
+		})
+		err := fn(ctx)
+		Expect(err).To(BeNil())
 		Expect(counter).To(Equal(1))
 	})
-	It("skip if already running", func() {
+	It("skips sampe func parallel", func() {
 		p := run.NewParallelSkipper()
-		p.SkipParallel(func(ctx context.Context) error {
-			time.Sleep(time.Second)
-			return nil
-		})(context.Background())
 		counter := 0
-		p.SkipParallel(func(ctx context.Context) error {
+		parallel := 4
+		var wg sync.WaitGroup
+		wg.Add(parallel)
+		fn := p.SkipParallel(func(ctx context.Context) error {
+			time.Sleep(100 * time.Millisecond)
 			counter++
 			return nil
-		})(context.Background())
-		Expect(counter).To(Equal(0))
+		})
+		for i := 0; i < parallel; i++ {
+			go func() {
+				defer wg.Done()
+				err := fn(ctx)
+				Expect(err).To(BeNil())
+			}()
+		}
+		wg.Wait()
+		Expect(counter).To(Equal(1))
 	})
 })

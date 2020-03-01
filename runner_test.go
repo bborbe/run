@@ -140,7 +140,15 @@ var _ = Describe("All", func() {
 })
 
 var _ = Describe("Sequential", func() {
-
+	It("returns if all funcs completed", func() {
+		r1 := new(testRunnable)
+		err := run.Sequential(context.Background(), r1.Run)
+		Expect(err).To(BeNil())
+	})
+	It("returns nil if empty list", func() {
+		err := run.Sequential(context.Background())
+		Expect(err).To(BeNil())
+	})
 	It("cancels after first failed", func() {
 		r1 := new(testRunnable)
 		r2 := new(testRunnable)
@@ -204,5 +212,12 @@ var _ = Describe("Delayed", func() {
 		err := fn(ctx)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(r1.Counter()).To(Equal(0))
+	})
+})
+
+var _ = Describe("Run", func() {
+	It("returns nil if empty list", func() {
+		err := run.Run(context.Background())
+		Expect(err).To(BeNil())
 	})
 })
