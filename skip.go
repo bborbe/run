@@ -13,7 +13,7 @@ import (
 )
 
 // SkipErrors runs the given Func and returns always nil.
-func SkipErrors(fn Func) Func {
+func SkipErrors(fn Func) func(context.Context) error {
 	return func(ctx context.Context) error {
 		if err := fn(ctx); err != nil {
 			glog.Warningf("run failed: %v", err)
@@ -34,7 +34,7 @@ func SkipErrorsAndReport(
 	fn Func,
 	hasCaptureErrorAndWait HasCaptureErrorAndWait,
 	tags map[string]string,
-) Func {
+) func(context.Context) error {
 	return func(ctx context.Context) error {
 		if err := fn(ctx); err != nil && errors.Cause(err) != context.Canceled {
 			glog.Warningf("run failed: %v", err)
