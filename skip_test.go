@@ -6,11 +6,12 @@ package run_test
 
 import (
 	"context"
-	"errors"
 
 	"github.com/bborbe/run"
+	"github.com/bborbe/run/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 )
 
 var _ = Describe("SkipErrors", func() {
@@ -35,18 +36,100 @@ var _ = Describe("SkipErrors", func() {
 var _ = Describe("SkipErrorsAndReport", func() {
 	var err error
 	var callCounter int
+	var sentryClient *mocks.HasCaptureErrorAndWait
+	var ctx context.Context
 	BeforeEach(func() {
+		ctx = context.Background()
 		callCounter = 0
-		fn := run.SkipErrorsAndReport(func(ctx context.Context) error {
-			callCounter++
-			return errors.New("banana")
-		}, nil)
-		err = fn(context.Background())
+		sentryClient = &mocks.HasCaptureErrorAndWait{}
+
 	})
-	It("Returns no error", func() {
-		Expect(err).To(BeNil())
+	Context("without error", func() {
+		BeforeEach(func() {
+			fn := run.SkipErrorsAndReport(
+				func(ctx context.Context) error {
+					callCounter++
+					return nil
+				},
+				sentryClient,
+				nil,
+			)
+			err = fn(ctx)
+		})
+		It("Returns no error", func() {
+			Expect(err).To(BeNil())
+		})
+		It("calls fn", func() {
+			Expect(callCounter).To(Equal(1))
+		})
+		It("has not call capture", func() {
+			Expect(sentryClient.CaptureErrorAndWaitCallCount()).To(Equal(0))
+		})
 	})
-	It("calls fn", func() {
-		Expect(callCounter).To(Equal(1))
+	Context("with error", func() {
+		BeforeEach(func() {
+			fn := run.SkipErrorsAndReport(
+				func(ctx context.Context) error {
+					callCounter++
+					return errors.New("banana")
+				},
+				sentryClient,
+				nil,
+			)
+			err = fn(ctx)
+		})
+		It("Returns no error", func() {
+			Expect(err).To(BeNil())
+		})
+		It("calls fn", func() {
+			Expect(callCounter).To(Equal(1))
+		})
+		It("calls capture", func() {
+			Expect(sentryClient.CaptureErrorAndWaitCallCount()).To(Equal(1))
+		})
+	})
+	Context("with context canceled error", func() {
+		BeforeEach(func() {
+			fn := run.SkipErrorsAndReport(
+				func(ctx context.Context) error {
+					callCounter++
+					return context.Canceled
+				},
+				sentryClient,
+				nil,
+			)
+			err = fn(ctx)
+		})
+		It("Returns no error", func() {
+			Expect(err).To(BeNil())
+		})
+		It("calls fn", func() {
+			Expect(callCounter).To(Equal(1))
+		})
+		It("has not call capture", func() {
+			Expect(sentryClient.CaptureErrorAndWaitCallCount()).To(Equal(0))
+		})
+	})
+	Context("with wrapped context canceled error", func() {
+		BeforeEach(func() {
+			fn := run.SkipErrorsAndReport(
+				func(ctx context.Context) error {
+					callCounter++
+					return errors.Wrap(context.Canceled, "wrapped")
+				},
+				sentryClient,
+				nil,
+			)
+			err = fn(ctx)
+		})
+		It("Returns no error", func() {
+			Expect(err).To(BeNil())
+		})
+		It("calls fn", func() {
+			Expect(callCounter).To(Equal(1))
+		})
+		It("has not call capture", func() {
+			Expect(sentryClient.CaptureErrorAndWaitCallCount()).To(Equal(0))
+		})
 	})
 })
