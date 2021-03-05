@@ -14,12 +14,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var _ = Describe("Retry", func() {
+var _ = Describe("Metrics", func() {
 	var err error
 	var callCounter int
 	var innerResult error
 	var innerFn func(ctx context.Context) error
 	var ctx context.Context
+	var registerer prometheus.Registerer
+	var fn run.Func
 	BeforeEach(func() {
 		ctx = context.Background()
 		innerResult = nil
@@ -28,10 +30,11 @@ var _ = Describe("Retry", func() {
 			callCounter++
 			return innerResult
 		}
+		registerer = prometheus.NewRegistry()
+		fn = run.NewMetrics(registerer, "ns", "sub", innerFn)
 	})
 	Context("no error", func() {
 		BeforeEach(func() {
-			fn := run.NewMetrics(prometheus.NewRegistry(), "ns", "sub", innerFn)
 			err = fn(ctx)
 		})
 		It("calls inner func", func() {
@@ -44,7 +47,6 @@ var _ = Describe("Retry", func() {
 	Context("error", func() {
 		BeforeEach(func() {
 			innerResult = errors.New("banana")
-			fn := run.NewMetrics(prometheus.NewRegistry(), "ns", "sub", innerFn)
 			err = fn(ctx)
 		})
 		It("calls inner func", func() {

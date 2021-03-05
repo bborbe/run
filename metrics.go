@@ -35,7 +35,18 @@ func NewMetrics(
 		Name:      "failed",
 		Help:      "failed",
 	})
-	registerer.MustRegister(started, completed, failed)
+	lastSuccess := prometheus.NewGauge(prometheus.GaugeOpts{
+		Namespace: namespace,
+		Subsystem: subsystem,
+		Name:      "last_success",
+		Help:      "Timestamp of last successful run",
+	})
+	registerer.MustRegister(
+		started,
+		completed,
+		failed,
+		lastSuccess,
+	)
 	return func(ctx context.Context) error {
 		started.Inc()
 		if err := fn(ctx); err != nil {
@@ -43,6 +54,7 @@ func NewMetrics(
 			return err
 		}
 		completed.Inc()
+		lastSuccess.SetToCurrentTime()
 		return nil
 	}
 }
