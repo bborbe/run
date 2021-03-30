@@ -34,15 +34,16 @@ func (fake *HasCaptureErrorAndWait) CaptureErrorAndWait(arg1 error, arg2 map[str
 		arg2 map[string]string
 		arg3 []raven.Interface
 	}{arg1, arg2, arg3})
+	stub := fake.CaptureErrorAndWaitStub
+	fakeReturns := fake.captureErrorAndWaitReturns
 	fake.recordInvocation("CaptureErrorAndWait", []interface{}{arg1, arg2, arg3})
 	fake.captureErrorAndWaitMutex.Unlock()
-	if fake.CaptureErrorAndWaitStub != nil {
-		return fake.CaptureErrorAndWaitStub(arg1, arg2, arg3...)
+	if stub != nil {
+		return stub(arg1, arg2, arg3...)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.captureErrorAndWaitReturns
 	return fakeReturns.result1
 }
 

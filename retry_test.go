@@ -87,8 +87,8 @@ var _ = Describe("Retry", func() {
 			fn := run.Retry(innerFn, 1, time.Hour)
 			err = fn(ctx)
 		})
-		It("returns no error", func() {
-			Expect(err).To(BeNil())
+		It("returns deadline error", func() {
+			Expect(err).To(Equal(context.DeadlineExceeded))
 		})
 		It("calls inner func", func() {
 			Expect(callCounter).To(Equal(1))
@@ -106,7 +106,7 @@ var _ = Describe("Retry", func() {
 			Expect(callCounter).To(Equal(0))
 		})
 		It("returns no error", func() {
-			Expect(err).To(BeNil())
+			Expect(err).To(Equal(context.Canceled))
 		})
 	})
 })

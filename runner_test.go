@@ -46,12 +46,12 @@ var _ = Describe("CancelOnFirstFinish", func() {
 			func(ctx context.Context) error {
 				select {
 				case <-ctx.Done():
-					return nil
+					return ctx.Err()
 				case <-time.NewTicker(time.Minute).C:
 					return nil
 				}
 			})
-		Expect(err).To(BeNil())
+		Expect(err).To(Equal(context.DeadlineExceeded))
 	})
 	It("TestCancelOnFirstFinishRun", func() {
 		r1 := new(testRunnable)
@@ -170,7 +170,7 @@ var _ = Describe("Sequential", func() {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			Expect(run.Sequential(ctx, f)).To(BeNil())
+			Expect(run.Sequential(ctx, f)).To(Equal(context.Canceled))
 		}()
 		cancel()
 		wg.Wait()
@@ -180,7 +180,7 @@ var _ = Describe("Sequential", func() {
 		cancel()
 		r1 := new(testRunnable)
 		err := run.Sequential(ctx, r1.Run)
-		Expect(err).To(BeNil())
+		Expect(err).To(Equal(context.Canceled))
 		Expect(r1.Counter()).To(Equal(0))
 	})
 })
@@ -210,7 +210,7 @@ var _ = Describe("Delayed", func() {
 		r1 := new(testRunnable)
 		fn := run.Delayed(r1.Run, time.Minute)
 		err := fn(ctx)
-		Expect(err).NotTo(HaveOccurred())
+		Expect(err).To(Equal(context.DeadlineExceeded))
 		Expect(r1.Counter()).To(Equal(0))
 	})
 })

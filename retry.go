@@ -17,7 +17,7 @@ func Retry(fn Func, limit int, delay time.Duration) func(ctx context.Context) er
 			i++
 			select {
 			case <-ctx.Done():
-				return nil
+				return ctx.Err()
 			default:
 				if err := fn(ctx); i > limit || err == nil {
 					return err
@@ -27,7 +27,7 @@ func Retry(fn Func, limit int, delay time.Duration) func(ctx context.Context) er
 				}
 				select {
 				case <-ctx.Done():
-					return nil
+					return ctx.Err()
 				case <-time.After(delay):
 				}
 			}
