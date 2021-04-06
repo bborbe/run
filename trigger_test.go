@@ -5,80 +5,65 @@
 package run_test
 
 import (
-	"context"
-	"errors"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/bborbe/run"
-	"github.com/bborbe/run/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Triggered", func() {
-	var ch chan struct{}
-	var fn run.Func
-	var runnable *mocks.Runnable
-	var err error
-	var ctx context.Context
-	var cancel context.CancelFunc
+var _ = Describe("Trigger", func() {
+	var trigger run.Trigger
 	BeforeEach(func() {
-		ctx = context.Background()
-		ch = make(chan struct{}, 8)
-		runnable = &mocks.Runnable{}
-		fn = run.Triggered(runnable.Run, ch)
+		trigger = run.NewTrigger()
 	})
-	AfterEach(func() {
-		close(ch)
+	It("returns something if fire was called before", func() {
+		trigger.Fire()
+		select {
+		case <-trigger.Done():
+		default:
+			Fail("should never happen")
+		}
 	})
-	Context("success", func() {
-		BeforeEach(func() {
-			ch <- struct{}{}
-			err = fn(ctx)
-		})
-		It("returns no error", func() {
-			Expect(err).To(BeNil())
-		})
-		It("calls fn", func() {
-			Expect(runnable.RunCallCount()).To(Equal(1))
-		})
+	It("returns something if fire was called before", func() {
+		go func() {
+			<-time.NewTimer(100 * time.Millisecond).C
+			trigger.Fire()
+		}()
+		select {
+		case <-trigger.Done():
+		case <-time.NewTimer(200 * time.Millisecond).C:
+			Fail("should never happen")
+		}
 	})
-	Context("fails", func() {
-		BeforeEach(func() {
-			runnable.RunReturns(errors.New("banana"))
-			ch <- struct{}{}
-			err = fn(ctx)
-		})
-		It("returns error", func() {
-			Expect(err).NotTo(BeNil())
-		})
-		It("calls fn", func() {
-			Expect(runnable.RunCallCount()).To(Equal(1))
-		})
+	It("returns nothing if fire never was called", func() {
+		select {
+		case <-trigger.Done():
+			Fail("should never happen")
+		case <-time.NewTimer(100 * time.Millisecond).C:
+		}
 	})
-	Context("context canceled", func() {
-		BeforeEach(func() {
-			ctx, cancel = context.WithCancel(ctx)
-			cancel()
-			err = fn(ctx)
-		})
-		It("returns cancel err", func() {
-			Expect(err).To(Equal(context.Canceled))
-		})
-		It("does not call fn", func() {
-			Expect(runnable.RunCallCount()).To(Equal(0))
-		})
-	})
-	Context("wait for trigger", func() {
-		BeforeEach(func() {
-			ctx, cancel = context.WithTimeout(ctx, 50*time.Millisecond)
-			err = fn(ctx)
-		})
-		It("returns error", func() {
-			Expect(err).To(Equal(context.DeadlineExceeded))
-		})
-		It("does not call fn", func() {
-			Expect(runnable.RunCallCount()).To(Equal(0))
-		})
+	It("trigger multi done", func() {
+		go func() {
+			<-time.NewTimer(100 * time.Millisecond).C
+			trigger.Fire()
+		}()
+		var counter int64
+		var wg sync.WaitGroup
+		for i := 0; i < 10; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				select {
+				case <-trigger.Done():
+					atomic.AddInt64(&counter, 1)
+				case <-time.NewTimer(200 * time.Millisecond).C:
+				}
+			}()
+		}
+		wg.Wait()
+		Expect(counter).To(Equal(int64(10)))
 	})
 })
