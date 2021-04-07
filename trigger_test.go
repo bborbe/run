@@ -27,6 +27,19 @@ var _ = Describe("Trigger", func() {
 			Fail("should never happen")
 		}
 	})
+	It("triggers only once", func() {
+		trigger.Fire()
+		trigger.Fire()
+		counter := 0
+		for {
+			_, ok := <-trigger.Done()
+			counter++
+			if !ok {
+				break
+			}
+		}
+		Expect(counter).To(Equal(1))
+	})
 	It("returns something if fire was called before", func() {
 		go func() {
 			<-time.NewTimer(100 * time.Millisecond).C
