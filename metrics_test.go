@@ -8,10 +8,11 @@ import (
 	"context"
 	"errors"
 
-	"github.com/bborbe/run"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/bborbe/run"
 )
 
 var _ = Describe("Metrics", func() {

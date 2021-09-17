@@ -9,9 +9,10 @@ import (
 	"errors"
 	"time"
 
-	"github.com/bborbe/run"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/bborbe/run"
 )
 
 var _ = Describe("Retry", func() {

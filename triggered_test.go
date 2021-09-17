@@ -9,10 +9,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/bborbe/run"
-	"github.com/bborbe/run/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/bborbe/run"
+	"github.com/bborbe/run/mocks"
 )
 
 var _ = Describe("Triggered", func() {

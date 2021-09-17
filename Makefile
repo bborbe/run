@@ -5,12 +5,12 @@ precommit: ensure format generate test check addlicense
 	@echo "ready to commit"
 
 ensure:
-	GO111MODULE=on go mod tidy
+	go mod verify
+	go mod vendor
 
 format:
-	go install -mod=vendor github.com/incu6us/goimports-reviser
 	find . -type f -name '*.go' -not -path './vendor/*' -exec gofmt -w "{}" +
-	find . -type f -name '*.go' -not -path './vendor/*' -exec goimports-reviser -project-name bitbucket.apps.seibert-media.net -file-path "{}" \;
+	find . -type f -name '*.go' -not -path './vendor/*' -exec go run -mod=vendor github.com/incu6us/goimports-reviser -project-name github.com/bborbe/run -file-path "{}" \;
 
 generate:
 	rm -rf mocks avro
@@ -22,16 +22,13 @@ test:
 check: lint vet errcheck
 
 lint:
-	go install -mod=vendor golang.org/x/lint/golint
-	@GOFLAGS=-mod=vendor golint -min_confidence 1 $(shell go list ./... | grep -v /vendor/)
+	go run -mod=vendor golang.org/x/lint/golint -min_confidence 1 $(shell go list -mod=vendor ./... | grep -v /vendor/)
 
 vet:
 	go vet $(shell go list ./... | grep -v /vendor/)
 
 errcheck:
-	go install -mod=vendor github.com/kisielk/errcheck
-	@GOFLAGS=-mod=vendor errcheck -ignore '(Close|Write|Fprint)' $(shell go list ./... | grep -v /vendor/)
+	go run -mod=vendor github.com/kisielk/errcheck -ignore '(Close|Write|Fprint)' $(shell go list -mod=vendor ./... | grep -v /vendor/)
 
 addlicense:
-	go install -mod=vendor  github.com/google/addlicense
-	addlicense -c "Benjamin Borbe" -y 2021 -l bsd ./*.go
+	go run -mod=vendor github.com/google/addlicense -c "Benjamin Borbe" -y 2021 -l bsd ./*.go

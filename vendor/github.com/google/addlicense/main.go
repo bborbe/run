@@ -21,15 +21,16 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"text/template"
 	"time"
 
+	doublestar "github.com/bmatcuk/doublestar/v4"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -48,6 +49,10 @@ Flags:
 `
 
 var (
+	skipExtensionFlags stringSlice
+	ignorePatterns     stringSlice
+	spdx               spdxFlag
+
 	holder    = flag.String("c", "Google LLC", "copyright holder")
 	license   = flag.String("l", "apache", "license type: apache, bsd, mit, mpl")
 	licensef  = flag.String("f", "", "license file")
@@ -56,40 +61,87 @@ var (
 	checkonly = flag.Bool("check", false, "check only mode: verify presence of license headers and exit with non-zero code if missing")
 )
 
-func main() {
+func init() {
 	flag.Usage = func() {
 		fmt.Fprintln(os.Stderr, helpText)
 		flag.PrintDefaults()
 	}
+	flag.Var(&skipExtensionFlags, "skip", "[deprecated: see -ignore] file extensions to skip, for example: -skip rb -skip go")
+	flag.Var(&ignorePatterns, "ignore", "file patterns to ignore, for example: -ignore **/*.go -ignore vendor/**")
+	flag.Var(&spdx, "s", "Include SPDX identifier in license header. Set -s=only to only include SPDX identifier.")
+}
+
+// stringSlice stores the results of a repeated command line flag as a string slice.
+type stringSlice []string
+
+func (i *stringSlice) String() string {
+	return fmt.Sprint(*i)
+}
+
+func (i *stringSlice) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
+// spdxFlag defines the line flag behavior for specifying SPDX support.
+type spdxFlag string
+
+const (
+	spdxOff  spdxFlag = ""
+	spdxOn   spdxFlag = "true" // value set by flag package on bool flag
+	spdxOnly spdxFlag = "only"
+)
+
+// IsBoolFlag causes a bare '-s' flag to be set as the string 'true'.  This
+// allows the use of the bare '-s' or setting a string '-s=only'.
+func (i *spdxFlag) IsBoolFlag() bool { return true }
+func (i *spdxFlag) String() string   { return string(*i) }
+
+func (i *spdxFlag) Set(value string) error {
+	v := spdxFlag(value)
+	if v != spdxOn && v != spdxOnly {
+		return fmt.Errorf("error: flag 's' expects '%v' or '%v'", spdxOn, spdxOnly)
+	}
+	*i = v
+	return nil
+}
+
+func main() {
 	flag.Parse()
 	if flag.NArg() == 0 {
 		flag.Usage()
 		os.Exit(1)
 	}
 
-	data := &copyrightData{
-		Year:   *year,
-		Holder: *holder,
+	// convert -skip flags to -ignore equivalents
+	for _, s := range skipExtensionFlags {
+		ignorePatterns = append(ignorePatterns, fmt.Sprintf("**/*.%s", s))
+	}
+	// verify that all ignorePatterns are valid
+	for _, p := range ignorePatterns {
+		if !doublestar.ValidatePattern(p) {
+			log.Fatalf("-ignore pattern %q is not valid", p)
+		}
 	}
 
-	var t *template.Template
-	if *licensef != "" {
-		d, err := ioutil.ReadFile(*licensef)
-		if err != nil {
-			log.Printf("license file: %v", err)
-			os.Exit(1)
-		}
-		t, err = template.New("").Parse(string(d))
-		if err != nil {
-			log.Printf("license file: %v", err)
-			os.Exit(1)
-		}
-	} else {
-		t = licenseTemplate[*license]
-		if t == nil {
-			log.Printf("unknown license: %s", *license)
-			os.Exit(1)
-		}
+	// map legacy license values
+	if t, ok := legacyLicenseTypes[*license]; ok {
+		*license = t
+	}
+
+	data := licenseData{
+		Year:   *year,
+		Holder: *holder,
+		SPDXID: *license,
+	}
+
+	tpl, err := fetchTemplate(*license, *licensef, spdx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	t, err := template.New("").Parse(tpl)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// process at most 1000 files in parallel
@@ -141,7 +193,9 @@ func main() {
 	}()
 
 	for _, d := range flag.Args() {
-		walk(ch, d)
+		if err := walk(ch, d); err != nil {
+			log.Fatal(err)
+		}
 	}
 	close(ch)
 	<-done
@@ -152,8 +206,8 @@ type file struct {
 	mode os.FileMode
 }
 
-func walk(ch chan<- *file, start string) {
-	filepath.Walk(start, func(path string, fi os.FileInfo, err error) error {
+func walk(ch chan<- *file, start string) error {
+	return filepath.Walk(start, func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			log.Printf("%s error: %v", path, err)
 			return nil
@@ -161,15 +215,31 @@ func walk(ch chan<- *file, start string) {
 		if fi.IsDir() {
 			return nil
 		}
+		if fileMatches(path, ignorePatterns) {
+			log.Printf("skipping: %s", path)
+			return nil
+		}
 		ch <- &file{path, fi.Mode()}
 		return nil
 	})
 }
 
+// fileMatches determines if path matches one of the provided file patterns.
+// Patterns are assumed to be valid.
+func fileMatches(path string, patterns []string) bool {
+	for _, p := range patterns {
+		// ignore error, since we assume patterns are valid
+		if match, _ := doublestar.Match(p, path); match {
+			return true
+		}
+	}
+	return false
+}
+
 // addLicense add a license to the file if missing.
 //
 // It returns true if the file was updated.
-func addLicense(path string, fmode os.FileMode, tmpl *template.Template, data *copyrightData) (bool, error) {
+func addLicense(path string, fmode os.FileMode, tmpl *template.Template, data licenseData) (bool, error) {
 	var lic []byte
 	var err error
 	lic, err = licenseHeader(path, tmpl, data)
@@ -207,32 +277,32 @@ func fileHasLicense(path string) (bool, error) {
 	return hasLicense(b) || isGenerated(b), nil
 }
 
-func licenseHeader(path string, tmpl *template.Template, data *copyrightData) ([]byte, error) {
+func licenseHeader(path string, tmpl *template.Template, data licenseData) ([]byte, error) {
 	var lic []byte
 	var err error
 	switch fileExtension(path) {
 	default:
 		return nil, nil
-	case ".c", ".h", ".gv":
-		lic, err = prefix(tmpl, data, "/*", " * ", " */")
+	case ".c", ".h", ".gv", ".java", ".scala", ".kt", ".kts":
+		lic, err = executeTemplate(tmpl, data, "/*", " * ", " */")
 	case ".js", ".mjs", ".cjs", ".jsx", ".tsx", ".css", ".scss", ".sass", ".tf", ".ts":
-		lic, err = prefix(tmpl, data, "/**", " * ", " */")
-	case ".cc", ".cpp", ".cs", ".go", ".hh", ".hpp", ".java", ".m", ".mm", ".proto", ".rs", ".scala", ".swift", ".dart", ".groovy", ".kt", ".kts", ".v", ".sv":
-		lic, err = prefix(tmpl, data, "", "// ", "")
+		lic, err = executeTemplate(tmpl, data, "/**", " * ", " */")
+	case ".cc", ".cpp", ".cs", ".go", ".hcl", ".hh", ".hpp", ".m", ".mm", ".proto", ".rs", ".swift", ".dart", ".groovy", ".v", ".sv":
+		lic, err = executeTemplate(tmpl, data, "", "// ", "")
 	case ".py", ".sh", ".yaml", ".yml", ".dockerfile", "dockerfile", ".rb", "gemfile", ".tcl", ".bzl":
-		lic, err = prefix(tmpl, data, "", "# ", "")
+		lic, err = executeTemplate(tmpl, data, "", "# ", "")
 	case ".el", ".lisp":
-		lic, err = prefix(tmpl, data, "", ";; ", "")
+		lic, err = executeTemplate(tmpl, data, "", ";; ", "")
 	case ".erl":
-		lic, err = prefix(tmpl, data, "", "% ", "")
+		lic, err = executeTemplate(tmpl, data, "", "% ", "")
 	case ".hs", ".sql", ".sdl":
-		lic, err = prefix(tmpl, data, "", "-- ", "")
-	case ".html", ".xml", ".vue":
-		lic, err = prefix(tmpl, data, "<!--", " ", "-->")
+		lic, err = executeTemplate(tmpl, data, "", "-- ", "")
+	case ".html", ".xml", ".vue", ".wxi", ".wxl", ".wxs":
+		lic, err = executeTemplate(tmpl, data, "<!--", " ", "-->")
 	case ".php":
-		lic, err = prefix(tmpl, data, "", "// ", "")
+		lic, err = executeTemplate(tmpl, data, "", "// ", "")
 	case ".ml", ".mli", ".mll", ".mly":
-		lic, err = prefix(tmpl, data, "(**", "   ", "*)")
+		lic, err = executeTemplate(tmpl, data, "(**", "   ", "*)")
 	}
 	return lic, err
 }
@@ -251,6 +321,8 @@ var head = []string{
 	"# encoding:",              // Ruby encoding
 	"# frozen_string_literal:", // Ruby interpreter instruction
 	"<?php",                    // PHP opening tag
+	"# escape",                 // Dockerfile directive https://docs.docker.com/engine/reference/builder/#parser-directives
+	"# syntax",                 // Dockerfile directive https://docs.docker.com/engine/reference/builder/#parser-directives
 }
 
 func hashBang(b []byte) []byte {
@@ -272,6 +344,7 @@ func hashBang(b []byte) []byte {
 
 // go generate: ^// Code generated .* DO NOT EDIT\.$
 var goGenerated = regexp.MustCompile(`(?m)^.{1,2} Code generated .* DO NOT EDIT\.$`)
+
 // cargo raze: ^DO NOT EDIT! Replaced on runs of cargo-raze$
 var cargoRazeGenerated = regexp.MustCompile(`(?m)^DO NOT EDIT! Replaced on runs of cargo-raze$`)
 
@@ -287,5 +360,6 @@ func hasLicense(b []byte) bool {
 		n = len(b)
 	}
 	return bytes.Contains(bytes.ToLower(b[:n]), []byte("copyright")) ||
-		bytes.Contains(bytes.ToLower(b[:n]), []byte("mozilla public"))
+		bytes.Contains(bytes.ToLower(b[:n]), []byte("mozilla public")) ||
+		bytes.Contains(bytes.ToLower(b[:n]), []byte("spdx-license-identifier"))
 }
