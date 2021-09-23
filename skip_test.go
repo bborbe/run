@@ -7,11 +7,12 @@ package run_test
 import (
 	"context"
 
-	"github.com/bborbe/run"
-	"github.com/bborbe/run/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
+
+	"github.com/bborbe/run"
+	"github.com/bborbe/run/mocks"
 )
 
 var _ = Describe("SkipErrors", func() {
