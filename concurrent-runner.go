@@ -71,7 +71,7 @@ func (c *concurrentRunner) Run(ctx context.Context) error {
 	limit := make(chan struct{}, c.maxConcurrent)
 	defer func() {
 		wg.Wait()
-		defer close(limit)
+		close(limit)
 		close(errs)
 	}()
 
