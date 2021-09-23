@@ -66,9 +66,14 @@ func (c *concurrentRunner) Add(ctx context.Context, fn Func) {
 }
 
 func (c *concurrentRunner) Run(ctx context.Context) error {
+	var wg sync.WaitGroup
 	errs := make(chan error)
-	defer close(errs)
 	limit := make(chan struct{}, c.maxConcurrent)
+	defer func() {
+		wg.Wait()
+		defer close(limit)
+		close(errs)
+	}()
 
 	return CancelOnFirstError(
 		ctx,
@@ -82,8 +87,10 @@ func (c *concurrentRunner) Run(ctx context.Context) error {
 						return nil
 					}
 					limit <- struct{}{}
+					wg.Add(1)
 					go func() {
 						defer func() {
+							wg.Done()
 							glog.V(3).Infof("fn complete to concurrent runner")
 							<-limit
 						}()
@@ -91,7 +98,6 @@ func (c *concurrentRunner) Run(ctx context.Context) error {
 						if err != nil {
 							select {
 							case <-ctx.Done():
-								return
 							case errs <- errors.Wrap(err, "execute fn failed"):
 							}
 						}
