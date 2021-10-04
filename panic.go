@@ -9,6 +9,7 @@ import (
 	"fmt"
 )
 
+// CatchPanic catchs all panics for the given func
 func CatchPanic(fn Func) Func {
 	return func(ctx context.Context) (err error) {
 		defer func() {

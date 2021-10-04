@@ -10,6 +10,7 @@ import (
 	"github.com/golang/glog"
 )
 
+// LogErrors for the given func
 func LogErrors(fn Func) Func {
 	return func(ctx context.Context) error {
 		if err := fn(ctx); err != nil {

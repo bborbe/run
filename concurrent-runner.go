@@ -13,12 +13,14 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ConcurrentRunner allow run N tasks concurrent
 type ConcurrentRunner interface {
 	Add(ctx context.Context, fn Func)
 	Run(ctx context.Context) error
 	io.Closer
 }
 
+// NewConcurrentRunner returns ConcurrentRunner with the given concurrent limit
 func NewConcurrentRunner(maxConcurrent int) ConcurrentRunner {
 	return &concurrentRunner{
 		maxConcurrent: maxConcurrent,

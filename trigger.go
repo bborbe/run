@@ -6,13 +6,25 @@ package run
 
 import "sync"
 
-type Trigger interface {
+// Fire a trigger
+type Fire interface {
 	// Fire trigger als Dons ch to get a element
 	Fire()
+}
+
+// Done check for a trigger
+type Done interface {
 	// Done chan gets a element if trigger was fired
 	Done() <-chan struct{}
 }
 
+// Trigger combines fire and done
+type Trigger interface {
+	Fire
+	Done
+}
+
+// NewTrigger create a new Trigger
 func NewTrigger() Trigger {
 	return &trigger{}
 }
