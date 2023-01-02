@@ -31,4 +31,4 @@ errcheck:
 	go run -mod=vendor github.com/kisielk/errcheck -ignore '(Close|Write|Fprint)' $(shell go list -mod=vendor ./... | grep -v /vendor/)
 
 addlicense:
-	go run -mod=vendor github.com/google/addlicense -c "Benjamin Borbe" -y 2021 -l bsd ./*.go
+	go run -mod=vendor github.com/google/addlicense -c "Benjamin Borbe" -y 2023 -l bsd ./*.go
