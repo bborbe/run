@@ -7,6 +7,7 @@ package run_test
 import (
 	"context"
 	"errors"
+	"runtime"
 	"sync"
 	"time"
 
@@ -217,8 +218,65 @@ var _ = Describe("Delayed", func() {
 })
 
 var _ = Describe("Run", func() {
-	It("returns nil if empty list", func() {
-		err := run.Run(context.Background())
-		Expect(err).To(BeNil())
+	var errCh <-chan error
+	var errList []error
+	var funcs []run.Func
+	JustBeforeEach(func() {
+		errList = []error{}
+		errCh = run.Run(context.Background(), funcs...)
+		if errCh != nil {
+			for err := range errCh {
+				errList = append(errList, err)
+			}
+		}
+	})
+	Context("empty list", func() {
+		BeforeEach(func() {
+			funcs = []run.Func{}
+		})
+		It("returns nil if empty list", func() {
+			Expect(errCh).To(BeNil())
+		})
+	})
+	Context("one func", func() {
+		BeforeEach(func() {
+			funcs = []run.Func{
+				func(ctx context.Context) error {
+					return errors.New("banana")
+				},
+			}
+		})
+		It("returns channel", func() {
+			Expect(errCh).NotTo(BeNil())
+			Expect(errList).To(HaveLen(1))
+		})
+	})
+	Context("num cpu funcs", func() {
+		BeforeEach(func() {
+			funcs = []run.Func{}
+			for i := 0; i < runtime.NumCPU(); i++ {
+				funcs = append(funcs, func(ctx context.Context) error {
+					return errors.New("banana")
+				})
+			}
+		})
+		It("returns channel", func() {
+			Expect(errCh).NotTo(BeNil())
+			Expect(errList).To(HaveLen(runtime.NumCPU()))
+		})
+	})
+	Context("num cpu funcs + 1", func() {
+		BeforeEach(func() {
+			funcs = []run.Func{}
+			for i := 0; i < runtime.NumCPU()+1; i++ {
+				funcs = append(funcs, func(ctx context.Context) error {
+					return errors.New("banana")
+				})
+			}
+		})
+		It("returns channel", func() {
+			Expect(errCh).NotTo(BeNil())
+			Expect(errList).To(HaveLen(runtime.NumCPU() + 1))
+		})
 	})
 })
