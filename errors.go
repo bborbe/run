@@ -28,7 +28,7 @@ func NewErrorListByChan(errors <-chan error) error {
 
 // Error combines all error messages into one.
 func (e ErrorList) Error() string {
-	buf := bytes.NewBufferString("errors: ")
+	buf := bytes.NewBufferString("errors: [")
 	first := true
 	for _, err := range e {
 		if first {
@@ -38,5 +38,6 @@ func (e ErrorList) Error() string {
 		}
 		buf.WriteString(err.Error())
 	}
+	buf.WriteString("]")
 	return buf.String()
 }
