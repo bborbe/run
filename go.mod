@@ -1,6 +1,6 @@
 module github.com/bborbe/run
 
-go 1.19
+go 1.20
 
 require (
 	github.com/getsentry/raven-go v0.2.0
@@ -8,8 +8,9 @@ require (
 	github.com/google/addlicense v1.1.1
 	github.com/incu6us/goimports-reviser v0.1.6
 	github.com/kisielk/errcheck v1.6.3
+	github.com/maxbrunsfeld/counterfeiter/v6 v6.6.1
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.24.2
+	github.com/onsi/gomega v1.26.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.14.0
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616

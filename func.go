@@ -14,7 +14,7 @@ func (r Func) Run(ctx context.Context) error {
 	return r(ctx)
 }
 
-//go:generate counterfeiter -o mocks/runnable.go --fake-name Runnable . Runnable
+//go:generate go run -mod=vendor github.com/maxbrunsfeld/counterfeiter/v6 -o mocks/runnable.go --fake-name Runnable . Runnable
 
 // Runnable interface
 type Runnable interface {

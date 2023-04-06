@@ -9,6 +9,10 @@ import "bytes"
 // ErrorList contains a list of errors.
 type ErrorList []error
 
+func (e ErrorList) Unwrap() []error {
+	return e
+}
+
 // NewErrorList create a ErrorList with the given errors.
 func NewErrorList(errors ...error) error {
 	if len(errors) == 0 {

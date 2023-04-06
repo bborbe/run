@@ -22,7 +22,7 @@ func SkipErrors(fn Func) func(context.Context) error {
 	}
 }
 
-//go:generate counterfeiter -o mocks/has-capture-error-and-wait.go --fake-name HasCaptureErrorAndWait . HasCaptureErrorAndWait
+//go:generate go run -mod=vendor github.com/maxbrunsfeld/counterfeiter/v6 -o mocks/has-capture-error-and-wait.go --fake-name HasCaptureErrorAndWait . HasCaptureErrorAndWait
 
 // HasCaptureErrorAndWait is compatibel with sentry.Client
 type HasCaptureErrorAndWait interface {

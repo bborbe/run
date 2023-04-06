@@ -4,6 +4,8 @@
 package run_test
 
 import (
+	"context"
+	"errors"
 	"fmt"
 
 	. "github.com/onsi/ginkgo"
@@ -45,5 +47,31 @@ var _ = Describe("Errors", func() {
 		errors := make([]error, 0, 1)
 		err := run.NewErrorList(errors...)
 		Expect(err).To(BeNil())
+	})
+	Context("errors.Is", func() {
+		var err error
+		var target error
+		var is bool
+		JustBeforeEach(func() {
+			is = errors.Is(err, target)
+		})
+		Context("same", func() {
+			BeforeEach(func() {
+				err = context.Canceled
+				target = context.Canceled
+			})
+			It("returns true", func() {
+				Expect(is).To(BeTrue())
+			})
+		})
+		Context("array", func() {
+			BeforeEach(func() {
+				err = run.NewErrorList(context.Canceled)
+				target = context.Canceled
+			})
+			It("returns true", func() {
+				Expect(is).To(BeTrue())
+			})
+		})
 	})
 })
