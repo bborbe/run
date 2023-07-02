@@ -54,6 +54,7 @@ func CancelOnFirstError(ctx context.Context, funcs ...Func) error {
 	return nil
 }
 
+// CancelOnFirstErrorWait executes all given functions. When a function encounters an error all remaining functions will be canceled.
 func CancelOnFirstErrorWait(ctx context.Context, funcs ...Func) error {
 	if len(funcs) == 0 {
 		return nil
