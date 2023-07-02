@@ -32,7 +32,7 @@ var _ = Describe("Retry", func() {
 	})
 	Context("normal context", func() {
 		BeforeEach(func() {
-			fn := run.Retry(innerFn, 0, 0)
+			fn := run.Retry(run.Backoff{}, innerFn)
 			err = fn(ctx)
 		})
 		It("returns no error", func() {
@@ -44,7 +44,9 @@ var _ = Describe("Retry", func() {
 	})
 	Context("limit 1 and no error", func() {
 		BeforeEach(func() {
-			fn := run.Retry(innerFn, 1, 0)
+			fn := run.Retry(run.Backoff{
+				Retries: 1,
+			}, innerFn)
 			err = fn(ctx)
 		})
 		It("returns no error", func() {
@@ -57,7 +59,9 @@ var _ = Describe("Retry", func() {
 	Context("limit 1 and error", func() {
 		BeforeEach(func() {
 			innerResult = errors.New("banana")
-			fn := run.Retry(innerFn, 1, 0)
+			fn := run.Retry(run.Backoff{
+				Retries: 1,
+			}, innerFn)
 			err = fn(ctx)
 		})
 		It("returns no error", func() {
@@ -70,7 +74,13 @@ var _ = Describe("Retry", func() {
 	Context("limit 1 and error and delay", func() {
 		BeforeEach(func() {
 			innerResult = errors.New("banana")
-			fn := run.Retry(innerFn, 1, 100*time.Millisecond)
+			fn := run.Retry(
+				run.Backoff{
+					Retries: 1,
+					Delay:   100 * time.Millisecond,
+				},
+				innerFn,
+			)
 			err = fn(ctx)
 		})
 		It("returns no error", func() {
@@ -85,7 +95,13 @@ var _ = Describe("Retry", func() {
 			ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
 			defer cancel()
 			innerResult = errors.New("banana")
-			fn := run.Retry(innerFn, 1, time.Hour)
+			fn := run.Retry(
+				run.Backoff{
+					Retries: 1,
+					Delay:   time.Hour,
+				},
+				innerFn,
+			)
 			err = fn(ctx)
 		})
 		It("returns deadline error", func() {
@@ -100,7 +116,7 @@ var _ = Describe("Retry", func() {
 		BeforeEach(func() {
 			ctx, cancel = context.WithCancel(ctx)
 			cancel()
-			fn := run.Retry(innerFn, 0, 0)
+			fn := run.Retry(run.Backoff{}, innerFn)
 			err = fn(ctx)
 		})
 		It("does not call inner if ctx is canncel func", func() {
