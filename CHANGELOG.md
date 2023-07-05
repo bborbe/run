@@ -8,6 +8,11 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.1.0
+
+- use ginkgo v2
+- improve use of counterfeiter
+
 ## v1.0.0
 
 - Initial Version
