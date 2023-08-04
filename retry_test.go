@@ -7,6 +7,7 @@ package run_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -124,6 +125,41 @@ var _ = Describe("Retry", func() {
 		})
 		It("returns no error", func() {
 			Expect(err).To(Equal(context.Canceled))
+		})
+	})
+	Context("isRetryable", func() {
+		var isRetryAble bool
+		BeforeEach(func() {
+			innerResult = fmt.Errorf("banana")
+			fn := run.Retry(run.Backoff{
+				Retries: 3,
+				IsRetryAble: func(err error) bool {
+					return isRetryAble
+				},
+			}, innerFn)
+			err = fn(ctx)
+		})
+		Context("is able to retry", func() {
+			BeforeEach(func() {
+				isRetryAble = true
+			})
+			It("return err", func() {
+				Expect(err).NotTo(BeNil())
+			})
+			It("retries", func() {
+				Expect(callCounter).To(Equal(4))
+			})
+		})
+		Context("is not able to retry", func() {
+			BeforeEach(func() {
+				isRetryAble = false
+			})
+			It("return err", func() {
+				Expect(err).NotTo(BeNil())
+			})
+			It("not retries", func() {
+				Expect(callCounter).To(Equal(1))
+			})
 		})
 	})
 })

@@ -11,8 +11,9 @@ import (
 
 // Backoff settings for retry
 type Backoff struct {
-	Delay   time.Duration `json:"delay"`
-	Retries int           `json:"retries"`
+	Delay       time.Duration    `json:"delay"`
+	Retries     int              `json:"retries"`
+	IsRetryAble func(error) bool `json:"-"`
 }
 
 // Retry on error n times and wait between the given delay.
@@ -25,10 +26,11 @@ func Retry(backoff Backoff, fn Func) Func {
 				return ctx.Err()
 			default:
 				if err := fn(ctx); err != nil {
-					if counter == backoff.Retries {
+					if counter == backoff.Retries || backoff.IsRetryAble != nil && backoff.IsRetryAble(err) == false {
 						return err
 					}
 					counter++
+
 					if backoff.Delay > 0 {
 						select {
 						case <-ctx.Done():
