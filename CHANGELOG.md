@@ -11,6 +11,7 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 ## v1.3.0
 
 - retry check if err is retryable
+- update deps and add vulncheck
 
 ## v1.2.0
 
