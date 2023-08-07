@@ -5,7 +5,7 @@
 package run
 
 import (
-	"errors"
+	"github.com/bborbe/errors"
 )
 
 // NewErrorList create a ErrorList with the given errors.

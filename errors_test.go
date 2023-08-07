@@ -22,12 +22,12 @@ var _ = Describe("Errors", func() {
 	It("TestNewErorrList", func() {
 		err := run.NewErrorList(fmt.Errorf("test"))
 		Expect(err).NotTo(BeNil())
-		Expect(err.Error()).To(Equal("test"))
+		Expect(err.Error()).To(Equal("[\ntest\n]"))
 	})
 	It("multi errors", func() {
 		err := run.NewErrorList(fmt.Errorf("test1"), fmt.Errorf("test2"))
 		Expect(err).NotTo(BeNil())
-		Expect(err.Error()).To(Equal("test1\ntest2"))
+		Expect(err.Error()).To(Equal("[\ntest1\ntest2\n]"))
 	})
 	It("TestNewByChanEmptyError", func() {
 		c := make(chan error, 10)
@@ -41,7 +41,7 @@ var _ = Describe("Errors", func() {
 		close(c)
 		err := run.NewErrorListByChan(c)
 		Expect(err).NotTo(BeNil())
-		Expect(err.Error()).To(Equal("test"))
+		Expect(err.Error()).To(Equal("[\ntest\n]"))
 	})
 	It("return nil if list is empty", func() {
 		errors := make([]error, 0, 1)
