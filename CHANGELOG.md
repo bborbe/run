@@ -8,6 +8,10 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.4.0
+
+- add background runner
+
 ## v1.3.1
 
 - use github.com/bborbe/errors for better error list display
