@@ -106,7 +106,7 @@ var _ = Describe("Retry", func() {
 			err = fn(ctx)
 		})
 		It("returns deadline error", func() {
-			Expect(err).To(Equal(context.DeadlineExceeded))
+			Expect(errors.Is(err, context.DeadlineExceeded)).To(BeTrue())
 		})
 		It("calls inner func", func() {
 			Expect(callCounter).To(Equal(1))
