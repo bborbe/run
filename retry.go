@@ -27,6 +27,11 @@ type Backoff struct {
 
 // Retry on error n times and wait between the given delay.
 func Retry(backoff Backoff, fn Func) Func {
+	return RetryWaiter(backoff, DefaultWaiter, fn)
+}
+
+// RetryWaiter allow use of custom Waiter
+func RetryWaiter(backoff Backoff, waiter Waiter, fn Func) Func {
 	return func(ctx context.Context) error {
 		var counter int
 		for {
@@ -35,18 +40,16 @@ func Retry(backoff Backoff, fn Func) Func {
 				return ctx.Err()
 			default:
 				if err := fn(ctx); err != nil {
-					if counter == backoff.Retries || backoff.IsRetryAble != nil && backoff.IsRetryAble(err) == false {
-						return err
+					if counter == backoff.Retries {
+						return errors.Wrapf(ctx, err, "reached try counter(%d)", backoff.Retries)
+					}
+					if backoff.IsRetryAble != nil && backoff.IsRetryAble(err) == false {
+						return errors.Wrap(ctx, err, "error is not retryable")
 					}
 					counter++
-
 					if backoff.Delay > 0 {
-						select {
-						case <-ctx.Done():
-							return ctx.Err()
-						case <-time.NewTimer(backoff.Delay).C:
-						}
-						if err := DefaultWaiter.Wait(ctx, backoff.Delay); err != nil {
+						delay := backoff.Delay + backoff.Delay*time.Duration(backoff.Factor*float64(counter-1))
+						if err := waiter.Wait(ctx, delay); err != nil {
 							return errors.Wrapf(ctx, err, "wait %v failed", backoff.Delay)
 						}
 					}
