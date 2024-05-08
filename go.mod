@@ -12,7 +12,6 @@ require (
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.8.1
 	github.com/onsi/ginkgo/v2 v2.17.2
 	github.com/onsi/gomega v1.33.0
-	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.19.0
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616
 	golang.org/x/vuln v1.1.0
@@ -28,6 +27,7 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/pprof v0.0.0-20240424215950-a892ee059fd6 // indirect
 	github.com/kr/text v0.2.0 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.53.0 // indirect
 	github.com/prometheus/procfs v0.14.0 // indirect

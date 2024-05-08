@@ -7,9 +7,9 @@ package run
 import (
 	"context"
 
+	"github.com/bborbe/errors"
 	"github.com/getsentry/raven-go"
 	"github.com/golang/glog"
-	"github.com/pkg/errors"
 )
 
 // SkipErrors runs the given Func and returns always nil.
@@ -36,7 +36,7 @@ func SkipErrorsAndReport(
 	tags map[string]string,
 ) Func {
 	return func(ctx context.Context) error {
-		if err := fn(ctx); err != nil && errors.Cause(err) != context.Canceled {
+		if err := fn(ctx); err != nil && errors.Is(err, context.Canceled) == false {
 			glog.Warningf("run failed: %v", err)
 			hasCaptureErrorAndWait.CaptureErrorAndWait(err, tags)
 		}

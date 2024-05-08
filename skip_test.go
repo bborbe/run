@@ -6,10 +6,11 @@ package run_test
 
 import (
 	"context"
+	stderrors "errors"
 
+	"github.com/bborbe/errors"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/pkg/errors"
 
 	"github.com/bborbe/run"
 	"github.com/bborbe/run/mocks"
@@ -22,7 +23,7 @@ var _ = Describe("SkipErrors", func() {
 		callCounter = 0
 		fn := run.SkipErrors(func(ctx context.Context) error {
 			callCounter++
-			return errors.New("banana")
+			return stderrors.New("banana")
 		})
 		err = fn(context.Background())
 	})
@@ -72,7 +73,7 @@ var _ = Describe("SkipErrorsAndReport", func() {
 			fn := run.SkipErrorsAndReport(
 				func(ctx context.Context) error {
 					callCounter++
-					return errors.New("banana")
+					return stderrors.New("banana")
 				},
 				sentryClient,
 				nil,
@@ -116,7 +117,7 @@ var _ = Describe("SkipErrorsAndReport", func() {
 			fn := run.SkipErrorsAndReport(
 				func(ctx context.Context) error {
 					callCounter++
-					return errors.Wrap(context.Canceled, "wrapped")
+					return errors.Wrap(ctx, context.Canceled, "wrapped")
 				},
 				sentryClient,
 				nil,
