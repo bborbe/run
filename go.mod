@@ -11,7 +11,7 @@ require (
 	github.com/incu6us/goimports-reviser/v3 v3.8.2
 	github.com/kisielk/errcheck v1.8.0
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.11.2
-	github.com/onsi/ginkgo/v2 v2.22.1
+	github.com/onsi/ginkgo/v2 v2.22.2
 	github.com/onsi/gomega v1.36.2
 	github.com/prometheus/client_golang v1.20.5
 	golang.org/x/lint v0.0.0-20241112194109-818c5a804067
@@ -36,14 +36,14 @@ require (
 	github.com/prometheus/common v0.61.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
-	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67 // indirect
+	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
 	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/net v0.33.0 // indirect
+	golang.org/x/net v0.34.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/telemetry v0.0.0-20241220003058-cc96b6e0d3d9 // indirect
+	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/telemetry v0.0.0-20250105011419-6d9ea865d014 // indirect
 	golang.org/x/text v0.21.0 // indirect
-	golang.org/x/tools v0.28.0 // indirect
-	google.golang.org/protobuf v1.36.1 // indirect
+	golang.org/x/tools v0.29.0 // indirect
+	google.golang.org/protobuf v1.36.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
