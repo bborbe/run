@@ -7,7 +7,7 @@ precommit: ensure format generate test check addlicense
 ensure:
 	go mod tidy
 	go mod verify
-	go mod vendor
+	rm -rf vendor
 
 format:
 	find . -type f -name '*.go' -not -path './vendor/*' -exec gofmt -w "{}" +
