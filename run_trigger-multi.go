@@ -11,7 +11,7 @@ import (
 // AddFire allow add a new trigger
 type AddFire interface {
 	// Add returns a new fire for trigger
-	Add() Fire
+	Add() Trigger
 }
 
 // MultiTrigger combines Done and AddFire
@@ -30,7 +30,7 @@ type multiTrigger struct {
 	triggers []Trigger
 }
 
-func (m *multiTrigger) Add() Fire {
+func (m *multiTrigger) Add() Trigger {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 
