@@ -54,10 +54,8 @@ func (m *multiTrigger) Done() <-chan struct{} {
 		default:
 			wg.Add(1)
 			go func(done Done) {
-				select {
-				case <-done.Done():
-					wg.Done()
-				}
+				<-done.Done()
+				wg.Done()
 			}(v)
 		}
 	}
