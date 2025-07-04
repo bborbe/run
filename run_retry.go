@@ -43,7 +43,7 @@ func RetryWaiter(backoff Backoff, waiter Waiter, fn Func) Func {
 					if counter == backoff.Retries {
 						return errors.Wrapf(ctx, err, "reached try counter(%d)", backoff.Retries)
 					}
-					if backoff.IsRetryAble != nil && backoff.IsRetryAble(err) == false {
+					if backoff.IsRetryAble != nil && !backoff.IsRetryAble(err) {
 						return errors.Wrap(ctx, err, "error is not retryable")
 					}
 					counter++

@@ -36,7 +36,7 @@ func SkipErrorsAndReport(
 	tags map[string]string,
 ) Func {
 	return func(ctx context.Context) error {
-		if err := fn(ctx); err != nil && errors.Is(err, context.Canceled) == false {
+		if err := fn(ctx); err != nil && !errors.Is(err, context.Canceled) {
 			glog.Warningf("run failed: %v", err)
 			hasCaptureErrorAndWait.CaptureErrorAndWait(err, tags)
 		}
