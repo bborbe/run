@@ -76,6 +76,61 @@ var _ = Describe("CancelOnFirstFinish", func() {
 	})
 })
 
+var _ = Describe("CancelOnFirstFinishWait", func() {
+	It("run nothing", func() {
+		err := run.CancelOnFirstFinishWait(context.Background())
+		Expect(err).To(BeNil())
+	})
+	It("run single function success", func() {
+		r1 := new(testRunnable)
+		err := run.CancelOnFirstFinishWait(context.Background(), r1.Run)
+		Expect(err).To(BeNil())
+		Expect(r1.Counter()).To(Equal(1))
+	})
+	It("run single function with error", func() {
+		r1 := new(testRunnable)
+		r1.result = errors.New("fail")
+		err := run.CancelOnFirstFinishWait(context.Background(), r1.Run)
+		Expect(err).NotTo(BeNil())
+		Expect(r1.Counter()).To(Equal(1))
+	})
+	It("run multiple functions and wait for all", func() {
+		r1 := new(testRunnable)
+		r2 := new(testRunnable)
+		r3 := new(testRunnable)
+		err := run.CancelOnFirstFinishWait(context.Background(), r1.Run, r2.Run, r3.Run)
+		Expect(err).To(BeNil())
+		// At least one should have run, but due to cancellation, not all may complete
+		Expect(r1.Counter() + r2.Counter() + r3.Counter()).To(BeNumerically(">=", 1))
+	})
+	It("collects all errors from completed functions", func() {
+		errorFunc := func(ctx context.Context) error {
+			return errors.New("test error")
+		}
+		successFunc := func(ctx context.Context) error {
+			return nil
+		}
+
+		err := run.CancelOnFirstFinishWait(context.Background(), errorFunc, successFunc)
+		Expect(err).To(HaveOccurred())
+	})
+	It("returns on context cancel", func() {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
+		defer cancel()
+		err := run.CancelOnFirstFinishWait(ctx,
+			func(ctx context.Context) error {
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case <-time.NewTicker(time.Minute).C:
+					return nil
+				}
+			})
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(ContainSubstring("context deadline exceeded"))
+	})
+})
+
 var _ = Describe("CancelOnFirstError", func() {
 	It("run nothing", func() {
 		err := run.CancelOnFirstError(context.Background())
@@ -99,6 +154,54 @@ var _ = Describe("CancelOnFirstError", func() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
 		defer cancel()
 		err := run.CancelOnFirstError(
+			ctx,
+			func(ctx context.Context) error {
+				select {
+				case <-time.NewTicker(time.Minute).C:
+				case <-ctx.Done():
+				}
+				return nil
+			},
+		)
+		Expect(err).To(BeNil())
+	})
+})
+
+var _ = Describe("CancelOnFirstErrorWait", func() {
+	It("run nothing", func() {
+		err := run.CancelOnFirstErrorWait(context.Background())
+		Expect(err).To(BeNil())
+	})
+	It("run all successfully", func() {
+		r1 := new(testRunnable)
+		err := run.CancelOnFirstErrorWait(context.Background(), r1.Run, r1.Run, r1.Run)
+		Expect(err).To(BeNil())
+		Expect(r1.Counter()).To(Equal(3))
+	})
+	It("cancels on first error and collects all errors", func() {
+		r1 := new(testRunnable)
+		r2 := new(testRunnable)
+		r2.result = errors.New("banana")
+		r3 := new(testRunnable)
+
+		err := run.CancelOnFirstErrorWait(context.Background(), r1.Run, r2.Run, r3.Run)
+		Expect(err).To(HaveOccurred())
+		// Should have at least one error
+		Expect(err.Error()).To(ContainSubstring("banana"))
+	})
+	It("returns single error", func() {
+		errorFunc := func(ctx context.Context) error {
+			return errors.New("test error")
+		}
+
+		err := run.CancelOnFirstErrorWait(context.Background(), errorFunc)
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(ContainSubstring("test error"))
+	})
+	It("returns on context cancel", func() {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
+		defer cancel()
+		err := run.CancelOnFirstErrorWait(
 			ctx,
 			func(ctx context.Context) error {
 				select {
