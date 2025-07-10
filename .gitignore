@@ -1,3 +1,4 @@
-vendor
-CLAUDE.md
-.claude
+/vendor
+/CLAUDE.md
+/.claude
+/coverage.out

@@ -91,28 +91,84 @@ var _ = Describe("ConcurrentRunner", func() {
 			mux.Unlock()
 		})
 	})
-	//Context("run only max at a time", func() {
-	//	BeforeEach(func() {
-	//		for i := 0; i < 20; i++ {
-	//			go func() {
-	//				concurrentRunner.Add(ctx, func(ctx context.Context) error {
-	//					mux.Lock()
-	//					atomic.AddUint64(&counter, 1)
-	//					mux.Unlock()
-	//					select {
-	//					case <-ctx.Done():
-	//					}
-	//					return nil
-	//				})
-	//			}()
-	//		}
-	//		time.Sleep(100 * time.Millisecond)
-	//		concurrentRunner.Close()
-	//	})
-	//	It("executes 8 methods", func() {
-	//		mux.Lock()
-	//		Expect(atomic.LoadUint64(&counter)).To(Equal(uint64(8)))
-	//		mux.Unlock()
-	//	})
-	//})
+	Context("run only max at a time", func() {
+		var concurrentChecker *int32
+		var maxConcurrent int32
+		BeforeEach(func() {
+			var currentConcurrent int32
+			concurrentChecker = &currentConcurrent
+			maxConcurrent = 0
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for i := 0; i < 20; i++ {
+					concurrentRunner.Add(ctx, func(ctx context.Context) error {
+						current := atomic.AddInt32(concurrentChecker, 1)
+						for {
+							old := atomic.LoadInt32(&maxConcurrent)
+							if current <= old || atomic.CompareAndSwapInt32(&maxConcurrent, old, current) {
+								break
+							}
+						}
+						// Simulate work
+						time.Sleep(10 * time.Millisecond)
+						atomic.AddInt32(concurrentChecker, -1)
+						atomic.AddUint64(&counter, 1)
+						return nil
+					})
+				}
+				concurrentRunner.Close()
+			}()
+		})
+		It("never exceeds max concurrent limit", func() {
+			Expect(atomic.LoadInt32(&maxConcurrent)).To(BeNumerically("<=", int32(max)))
+		})
+		It("executes all methods", func() {
+			Expect(atomic.LoadUint64(&counter)).To(Equal(uint64(20)))
+		})
+	})
+	Context("Close() edge cases", func() {
+		It("returns error when closed multiple times", func() {
+			runner := run.NewConcurrentRunner(5)
+			err1 := runner.Close()
+			Expect(err1).To(BeNil())
+
+			err2 := runner.Close()
+			Expect(err2).To(HaveOccurred())
+			Expect(err2.Error()).To(ContainSubstring("already closed"))
+		})
+	})
+	Context("Add() edge cases", func() {
+		It("discards functions added after close", func() {
+			runner := run.NewConcurrentRunner(5)
+			runner.Close()
+
+			// This should not panic and should discard the function
+			runner.Add(ctx, func(ctx context.Context) error {
+				atomic.AddUint64(&counter, 1)
+				return nil
+			})
+
+			// Run should complete without executing the discarded function
+			err := runner.Run(ctx)
+			Expect(err).To(BeNil())
+			Expect(atomic.LoadUint64(&counter)).To(Equal(uint64(0)))
+		})
+		It("respects context cancellation in Add", func() {
+			runner := run.NewConcurrentRunner(1)
+			cancelCtx, cancel := context.WithCancel(ctx)
+			cancel() // Cancel immediately
+
+			// Add with cancelled context should not add the function
+			runner.Add(cancelCtx, func(ctx context.Context) error {
+				atomic.AddUint64(&counter, 1)
+				return nil
+			})
+
+			runner.Close()
+			err := runner.Run(ctx)
+			Expect(err).To(BeNil())
+			Expect(atomic.LoadUint64(&counter)).To(Equal(uint64(0)))
+		})
+	})
 })
