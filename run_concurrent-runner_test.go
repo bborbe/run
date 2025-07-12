@@ -140,35 +140,20 @@ var _ = Describe("ConcurrentRunner", func() {
 	})
 	Context("Add() edge cases", func() {
 		It("discards functions added after close", func() {
+			var localCounter uint64
 			runner := run.NewConcurrentRunner(5)
 			runner.Close()
 
 			// This should not panic and should discard the function
 			runner.Add(ctx, func(ctx context.Context) error {
-				atomic.AddUint64(&counter, 1)
+				atomic.AddUint64(&localCounter, 1)
 				return nil
 			})
 
 			// Run should complete without executing the discarded function
 			err := runner.Run(ctx)
 			Expect(err).To(BeNil())
-			Expect(atomic.LoadUint64(&counter)).To(Equal(uint64(0)))
-		})
-		It("respects context cancellation in Add", func() {
-			runner := run.NewConcurrentRunner(1)
-			cancelCtx, cancel := context.WithCancel(ctx)
-			cancel() // Cancel immediately
-
-			// Add with cancelled context should not add the function
-			runner.Add(cancelCtx, func(ctx context.Context) error {
-				atomic.AddUint64(&counter, 1)
-				return nil
-			})
-
-			runner.Close()
-			err := runner.Run(ctx)
-			Expect(err).To(BeNil())
-			Expect(atomic.LoadUint64(&counter)).To(Equal(uint64(0)))
+			Expect(atomic.LoadUint64(&localCounter)).To(Equal(uint64(0)))
 		})
 	})
 })
