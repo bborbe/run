@@ -92,8 +92,6 @@ func (fake *HasCaptureErrorAndWait) CaptureErrorAndWaitReturnsOnCall(i int, resu
 func (fake *HasCaptureErrorAndWait) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.captureErrorAndWaitMutex.RLock()
-	defer fake.captureErrorAndWaitMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
