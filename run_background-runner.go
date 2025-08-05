@@ -10,10 +10,14 @@ import (
 	"github.com/golang/glog"
 )
 
+// BackgroundRunner executes functions in background goroutines with parallel execution prevention.
+// It ensures that only one instance of a function runs at a time, skipping subsequent calls if already running.
 type BackgroundRunner interface {
 	Run(runFunc Func) error
 }
 
+// NewBackgroundRunner creates a new BackgroundRunner that uses the provided context for all background operations.
+// The returned runner will skip parallel executions and log the results of background operations.
 func NewBackgroundRunner(ctx context.Context) BackgroundRunner {
 	return &backgroundRunner{
 		ctx:             ctx,

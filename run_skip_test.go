@@ -38,12 +38,12 @@ var _ = Describe("SkipErrors", func() {
 var _ = Describe("SkipErrorsAndReport", func() {
 	var err error
 	var callCounter int
-	var sentryClient *mocks.HasCaptureErrorAndWait
+	var sentryClient *mocks.HasCaptureException
 	var ctx context.Context
 	BeforeEach(func() {
 		ctx = context.Background()
 		callCounter = 0
-		sentryClient = &mocks.HasCaptureErrorAndWait{}
+		sentryClient = &mocks.HasCaptureException{}
 
 	})
 	Context("without error", func() {
@@ -65,7 +65,7 @@ var _ = Describe("SkipErrorsAndReport", func() {
 			Expect(callCounter).To(Equal(1))
 		})
 		It("has not call capture", func() {
-			Expect(sentryClient.CaptureErrorAndWaitCallCount()).To(Equal(0))
+			Expect(sentryClient.CaptureExceptionCallCount()).To(Equal(0))
 		})
 	})
 	Context("with error", func() {
@@ -87,7 +87,7 @@ var _ = Describe("SkipErrorsAndReport", func() {
 			Expect(callCounter).To(Equal(1))
 		})
 		It("calls capture", func() {
-			Expect(sentryClient.CaptureErrorAndWaitCallCount()).To(Equal(1))
+			Expect(sentryClient.CaptureExceptionCallCount()).To(Equal(1))
 		})
 	})
 	Context("with context canceled error", func() {
@@ -109,7 +109,7 @@ var _ = Describe("SkipErrorsAndReport", func() {
 			Expect(callCounter).To(Equal(1))
 		})
 		It("has not call capture", func() {
-			Expect(sentryClient.CaptureErrorAndWaitCallCount()).To(Equal(0))
+			Expect(sentryClient.CaptureExceptionCallCount()).To(Equal(0))
 		})
 	})
 	Context("with wrapped context canceled error", func() {
@@ -131,7 +131,7 @@ var _ = Describe("SkipErrorsAndReport", func() {
 			Expect(callCounter).To(Equal(1))
 		})
 		It("has not call capture", func() {
-			Expect(sentryClient.CaptureErrorAndWaitCallCount()).To(Equal(0))
+			Expect(sentryClient.CaptureExceptionCallCount()).To(Equal(0))
 		})
 	})
 })

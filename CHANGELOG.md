@@ -8,6 +8,14 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.7.6
+
+- Add comprehensive Go documentation following best practices to all public APIs
+- Create package documentation (doc.go) with usage examples 
+- Update README with detailed library documentation and examples
+- Improve function comments for better godoc rendering
+- Update generated mocks (HasCaptureException interface)
+
 ## v1.7.5
 
 - go mod update

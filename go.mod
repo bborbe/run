@@ -5,7 +5,7 @@ go 1.24.5
 require (
 	github.com/actgardner/gogen-avro/v9 v9.2.0
 	github.com/bborbe/errors v1.3.0
-	github.com/getsentry/raven-go v0.2.0
+	github.com/getsentry/sentry-go v0.35.0
 	github.com/golang/glog v1.2.5
 	github.com/google/addlicense v1.1.1
 	github.com/incu6us/goimports-reviser/v3 v3.9.1
@@ -21,7 +21,6 @@ require (
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.9.0 // indirect
-	github.com/certifi/gocertifi v0.0.0-20210507211836-431795d63e8d // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect

@@ -8,19 +8,21 @@ import (
 	"sync"
 )
 
-// AddFire allow add a new trigger
+// AddFire represents the ability to create new triggers dynamically.
 type AddFire interface {
-	// Add returns a new fire for trigger
+	// Add creates and returns a new trigger that becomes part of the multi-trigger group.
 	Add() Trigger
 }
 
-// MultiTrigger combines Done and AddFire
+// MultiTrigger manages multiple triggers and fires when all of them have been triggered.
+// It combines the ability to add new triggers dynamically and wait for all triggers to fire.
 type MultiTrigger interface {
 	Done
 	AddFire
 }
 
-// NewMultiTrigger returns a MultiTrigger
+// NewMultiTrigger creates a new MultiTrigger that waits for all added triggers to fire.
+// The Done channel signals when all individual triggers have been fired.
 func NewMultiTrigger() MultiTrigger {
 	return &multiTrigger{}
 }

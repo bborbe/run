@@ -13,6 +13,9 @@ import (
 	"github.com/golang/glog"
 )
 
+// ContextWithSig creates a new context that is canceled when the process receives termination signals.
+// It listens for SIGINT and SIGTERM signals and cancels the returned context when any of these signals are received.
+// This is useful for graceful shutdown of long-running processes.
 func ContextWithSig(ctx context.Context) context.Context {
 	ctxWithCancel, cancel := context.WithCancel(ctx)
 	go func() {
