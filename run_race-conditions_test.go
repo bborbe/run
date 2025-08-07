@@ -130,7 +130,9 @@ var _ = Describe("Race Conditions and Resource Cleanup", func() {
 			}
 
 			wg.Wait()
-			Expect(atomic.LoadInt64(&totalExecuted)).To(Equal(int64(numRunners * numFuncsPerRunner)))
+			Expect(
+				atomic.LoadInt64(&totalExecuted),
+			).To(Equal(int64(numRunners * numFuncsPerRunner)))
 		})
 
 		It("handles race between multiple signal context creations", func() {
@@ -256,7 +258,10 @@ var _ = Describe("Race Conditions and Resource Cleanup", func() {
 			// Memory usage should not grow excessively
 			// Allow some reasonable growth but not proportional to numFuncs
 			memoryGrowth := memStats2.Alloc - memStats1.Alloc
-			Expect(memoryGrowth).To(BeNumerically("<", numFuncs*1024)) // Should be less than total allocated
+			Expect(
+				memoryGrowth,
+			).To(BeNumerically("<", numFuncs*1024))
+			// Should be less than total allocated
 		})
 
 		It("handles goroutine cleanup properly", func() {

@@ -218,7 +218,9 @@ var _ = Describe("Complex Error Propagation", func() {
 
 			Expect(err).To(HaveOccurred())
 			// CancelOnFirstError returns the first error encountered
-			Expect(err.Error()).To(Or(ContainSubstring("first error"), ContainSubstring("should not execute")))
+			Expect(
+				err.Error(),
+			).To(Or(ContainSubstring("first error"), ContainSubstring("should not execute")))
 
 			// Should have started at least the first function
 			Expect(atomic.LoadInt64(&executedFuncs)).To(BeNumerically(">=", 1))

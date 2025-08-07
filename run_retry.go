@@ -52,7 +52,9 @@ func RetryWaiter(backoff Backoff, waiter Waiter, fn Func) Func {
 					}
 					counter++
 					if backoff.Delay > 0 {
-						delay := backoff.Delay + backoff.Delay*time.Duration(backoff.Factor*float64(counter-1))
+						delay := backoff.Delay + backoff.Delay*time.Duration(
+							backoff.Factor*float64(counter-1),
+						)
 						if err := waiter.Wait(ctx, delay); err != nil {
 							return errors.Wrapf(ctx, err, "wait %v failed", backoff.Delay)
 						}

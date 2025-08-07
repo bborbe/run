@@ -8,6 +8,14 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.7.7
+
+- Code formatting improvements for better readability using golines
+- Add golines tool dependency for automated line length management
+- Update dependencies and go.mod with latest versions
+- Update test files with improved formatting
+- Enhance Makefile for better build process
+
 ## v1.7.6
 
 - Add comprehensive Go documentation following best practices to all public APIs

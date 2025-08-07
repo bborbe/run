@@ -206,7 +206,10 @@ var _ = Describe("ContextWithSig", func() {
 		})
 
 		It("handles context with deadline", func() {
-			deadlineCtx, deadlineCancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+			deadlineCtx, deadlineCancel := context.WithTimeout(
+				context.Background(),
+				100*time.Millisecond,
+			)
 			defer deadlineCancel()
 
 			sigCtx := run.ContextWithSig(deadlineCtx)

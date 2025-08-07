@@ -28,7 +28,11 @@ func SkipErrors(fn Func) Func {
 // HasCaptureException defines the interface for error reporting services.
 // It is compatible with sentry.Client for reporting captured errors.
 type HasCaptureException interface {
-	CaptureException(exception error, hint *sentry.EventHint, scope sentry.EventModifier) *sentry.EventID
+	CaptureException(
+		exception error,
+		hint *sentry.EventHint,
+		scope sentry.EventModifier,
+	) *sentry.EventID
 }
 
 // SkipErrorsAndReport wraps the given function to suppress all errors, report them to an error tracking service, and always return nil.

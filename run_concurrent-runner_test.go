@@ -106,7 +106,8 @@ var _ = Describe("ConcurrentRunner", func() {
 						current := atomic.AddInt32(concurrentChecker, 1)
 						for {
 							old := atomic.LoadInt32(&maxConcurrent)
-							if current <= old || atomic.CompareAndSwapInt32(&maxConcurrent, old, current) {
+							if current <= old ||
+								atomic.CompareAndSwapInt32(&maxConcurrent, old, current) {
 								break
 							}
 						}
