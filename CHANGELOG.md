@@ -8,6 +8,15 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.8.0
+- Add FuncRunner interface for executing functions with custom behavior
+- Add FuncRunnerFunc adapter for function-to-interface pattern
+- Refactor BackgroundRunner to use FuncRunner interface composition
+- Add comprehensive test suite for FuncRunner (8 new tests)
+- Update BackgroundRunner documentation to clarify interface embedding
+- Update bborbe/errors dependency from v1.3.0 to v1.3.1
+- Clean up unused dependencies in go.mod
+
 ## v1.7.8
 - Update Go version from 1.24.5 to 1.25.2
 - Add golangci-lint configuration (.golangci.yml)
