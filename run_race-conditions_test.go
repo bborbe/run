@@ -115,7 +115,7 @@ var _ = Describe("Race Conditions and Resource Cleanup", func() {
 							return nil
 						})
 					}
-					runner.Close()
+					Expect(runner.Close()).To(Succeed())
 				}(runners[i])
 			}
 

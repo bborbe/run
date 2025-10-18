@@ -8,6 +8,12 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.8.1
+- Add nil validation in FuncRunnerFunc.Run to prevent panics
+- Improve receiver name clarity in FuncRunnerFunc (b → f)
+- Fix unchecked errors in test files (use proper Gomega assertions)
+- Update copyright year in run_background-runner.go (2023-2025)
+
 ## v1.8.0
 - Add FuncRunner interface for executing functions with custom behavior
 - Add FuncRunnerFunc adapter for function-to-interface pattern

@@ -17,6 +17,7 @@ require (
 	github.com/prometheus/client_golang v1.23.2
 	github.com/securego/gosec/v2 v2.22.9
 	github.com/segmentio/golines v0.13.0
+	github.com/shoenig/go-modtool v0.4.0
 	golang.org/x/lint v0.0.0-20241112194109-818c5a804067
 	golang.org/x/vuln v1.1.4
 )
@@ -179,6 +180,7 @@ require (
 	github.com/gostaticanalysis/forcetypeassert v0.2.0 // indirect
 	github.com/gostaticanalysis/nilerr v0.1.1 // indirect
 	github.com/hashicorp/go-immutable-radix/v2 v2.1.0 // indirect
+	github.com/hashicorp/go-set/v3 v3.0.1 // indirect
 	github.com/hashicorp/go-version v1.7.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -279,6 +281,8 @@ require (
 	github.com/secDre4mer/pkcs7 v0.0.0-20240322103146-665324a4461d // indirect
 	github.com/sergi/go-diff v1.4.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
+	github.com/shoenig/regexplus v0.3.0 // indirect
+	github.com/shoenig/semantic v1.2.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/sivchari/containedctx v1.0.3 // indirect
 	github.com/sivchari/tenv v1.12.1 // indirect

@@ -79,7 +79,7 @@ var _ = Describe("ConcurrentRunner", func() {
 						return nil
 					})
 				}
-				concurrentRunner.Close()
+				Expect(concurrentRunner.Close()).To(Succeed())
 			}()
 		})
 		It("returns no error", func() {
@@ -118,7 +118,7 @@ var _ = Describe("ConcurrentRunner", func() {
 						return nil
 					})
 				}
-				concurrentRunner.Close()
+				Expect(concurrentRunner.Close()).To(Succeed())
 			}()
 		})
 		It("never exceeds max concurrent limit", func() {

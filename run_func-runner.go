@@ -4,6 +4,8 @@
 
 package run
 
+import "errors"
+
 //counterfeiter:generate -o mocks/func-runner.go --fake-name FuncRunner . FuncRunner
 
 // FuncRunner is an interface for executing Func with custom behavior.
@@ -18,6 +20,9 @@ type FuncRunner interface {
 type FuncRunnerFunc func(runFunc Func) error
 
 // Run executes the function, implementing the FuncRunner interface.
-func (b FuncRunnerFunc) Run(runFunc Func) error {
-	return b(runFunc)
+func (f FuncRunnerFunc) Run(runFunc Func) error {
+	if runFunc == nil {
+		return errors.New("nil function")
+	}
+	return f(runFunc)
 }
