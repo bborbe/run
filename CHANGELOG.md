@@ -8,6 +8,10 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.8.3
+- Update dependencies (sentry-go v0.36.2→v0.40.0, osv-scanner v2.2.4→v2.3.0, goimports-reviser v3.10.0→v3.11.0)
+- Update indirect dependencies to latest versions
+
 ## v1.8.2
 - Update Go version from 1.25.2 to 1.25.4 (fixes crypto/x509 performance vulnerability GO-2025-4007)
 - Update GitHub Actions CI workflow to use Go 1.25.4
