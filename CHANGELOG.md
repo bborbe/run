@@ -8,6 +8,10 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.0
+
+- update go and deps
+
 ## v1.8.3
 - Update dependencies (sentry-go v0.36.2→v0.40.0, osv-scanner v2.2.4→v2.3.0, goimports-reviser v3.10.0→v3.11.0)
 - Update indirect dependencies to latest versions
