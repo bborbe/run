@@ -8,6 +8,13 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.2
+
+- Update Go from 1.25.5 to 1.25.7
+- Update direct dependencies: bborbe/errors, getsentry/sentry-go, google/osv-scanner, onsi/ginkgo, onsi/gomega
+- Update numerous indirect dependencies and toolchain packages
+- Add new .gitignore entries for .update-logs/ and .mcp-* directories
+
 ## v1.9.1
 - update go and deps
 
