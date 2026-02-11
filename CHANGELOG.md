@@ -8,6 +8,10 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.3
+- Update Go from 1.25.7 to 1.26
+- Use go-version-file in CI workflow instead of hardcoded version
+
 ## v1.9.2
 
 - Update Go from 1.25.5 to 1.25.7
