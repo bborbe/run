@@ -18,24 +18,24 @@ func NewMetrics(
 	namespace string,
 	subsystem string,
 	fn Func,
-) func(ctx context.Context) error {
+) Func {
 	started := prometheus.NewGauge(prometheus.GaugeOpts{
 		Namespace: namespace,
 		Subsystem: subsystem,
 		Name:      "started",
-		Help:      "started",
+		Help:      "Total number of started runs",
 	})
 	completed := prometheus.NewGauge(prometheus.GaugeOpts{
 		Namespace: namespace,
 		Subsystem: subsystem,
 		Name:      "completed",
-		Help:      "completed",
+		Help:      "Total number of successfully completed runs",
 	})
 	failed := prometheus.NewGauge(prometheus.GaugeOpts{
 		Namespace: namespace,
 		Subsystem: subsystem,
 		Name:      "failed",
-		Help:      "failed",
+		Help:      "Total number of failed runs",
 	})
 	lastSuccess := prometheus.NewGauge(prometheus.GaugeOpts{
 		Namespace: namespace,
