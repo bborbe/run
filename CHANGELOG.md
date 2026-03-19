@@ -8,6 +8,13 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.6
+
+- update dependencies (bborbe/errors, osv-scanner, otel, grpc, go-git)
+- remove large exclude block and replace directive from go.mod
+- add new indirect deps (charm.land, bazelbuild/buildtools, clipperhouse)
+- bump golang.org/x/{oauth2,sync,sys} and google.golang.org/grpc
+
 ## v1.9.5
 
 - go mod update
