@@ -8,6 +8,14 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.7
+
+- Update gosec/v2 to v2.25.0
+- Update openai-go/v3 to v3.28.0
+- Update golang.org/x packages (crypto, mod, net, tools, text, term, telemetry)
+- Update google.golang.org/genai to v1.50.0
+- Update google.golang.org/genproto/googleapis/rpc
+
 ## v1.9.6
 
 - update dependencies (bborbe/errors, osv-scanner, otel, grpc, go-git)
