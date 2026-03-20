@@ -8,6 +8,11 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.8
+
+- upgrade golangci-lint from v1 to v2
+- update bborbe/errors to v1.5.5
+
 ## v1.9.7
 
 - Update gosec/v2 to v2.25.0
