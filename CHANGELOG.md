@@ -8,6 +8,10 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.10
+
+- chore: verify precommit passes with exit code 0 and Definition of Done criteria are met
+
 ## v1.9.9
 
 - standardize Makefile: add mocks mkdir, reorder lint, multiline trivy, add .PHONY declarations
