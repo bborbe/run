@@ -1,7 +1,12 @@
 ---
-status: approved
+status: completed
+summary: make precommit passed with exit code 0; no fixes needed — all tests, linting, and security checks pass cleanly.
+container: run-001-fix-tests-and-dod
+dark-factory-version: v0.59.5-dirty
 created: "2026-03-20T12:58:06Z"
 queued: "2026-03-20T12:58:06Z"
+started: "2026-03-20T16:03:58Z"
+completed: "2026-03-20T16:08:52Z"
 ---
 
 <summary>
