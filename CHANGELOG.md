@@ -8,6 +8,14 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.12
+
+- Update dependencies: bborbe/errors, sentry-go, golangci-lint, osv-scanner
+- Update containerd, docker, moby/buildkit, opencontainers deps
+- Remove golang.org/x/lint/golint tool import from tools.go
+- Update shoenig/go-modtool v0.5.0 → v0.7.1
+- Various indirect dependency updates
+
 ## v1.9.11
 
 - chore: confirm precommit passes and Definition of Done criteria are met
