@@ -2,6 +2,10 @@ module github.com/bborbe/run
 
 go 1.26.1
 
+replace (
+	github.com/opencontainers/runtime-spec => github.com/opencontainers/runtime-spec v1.2.0
+)
+
 require (
 	github.com/bborbe/errors v1.5.8
 	github.com/getsentry/sentry-go v0.44.1

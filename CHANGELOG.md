@@ -8,6 +8,11 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.13
+
+- pin opencontainers/runtime-spec to v1.2.0 via replace directive
+- allow parallel golangci-lint runners
+
 ## v1.9.12
 
 - Update dependencies: bborbe/errors, sentry-go, golangci-lint, osv-scanner
