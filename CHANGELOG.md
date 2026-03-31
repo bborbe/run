@@ -8,6 +8,10 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.14
+
+- Update go-git/go-git to v5.17.1 (fix security vulnerabilities)
+
 ## v1.9.13
 
 - pin opencontainers/runtime-spec to v1.2.0 via replace directive
