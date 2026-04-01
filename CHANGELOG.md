@@ -8,6 +8,13 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.16
+
+- bump bborbe/errors to v1.5.9
+- update golangci-lint and transitive dependencies
+- add autoRelease flag to dark-factory config
+- downgrade several indirect deps for compatibility
+
 ## v1.9.15
 
 - Update dependencies to fix security vulnerabilities (go-git/v5 v5.17.2, buildkit v0.29.0)
