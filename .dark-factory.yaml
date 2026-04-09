@@ -9,7 +9,7 @@ env:
 extraMounts:
   - src: ${GOPATH}/pkg
     dst: /home/node/go/pkg
-  - src: ${HOME}/Library/Caches/go-build
+  - src: ${HOST_CACHE_DIR}/go-build
     dst: /home/node/.cache/go-build
-  - src: ${HOME}/Library/Caches/golangci-lint
+  - src: ${HOST_CACHE_DIR}/golangci-lint
     dst: /home/node/.cache/golangci-lint
