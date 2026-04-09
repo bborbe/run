@@ -8,6 +8,12 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.17
+
+- bump go 1.26.2, sentry-go v0.45.0, counterfeiter v6.12.2, golang.org/x/sys v0.43.0
+- add vuln ignores for bbolt, bleve, pgx, aws-sdk CVEs
+- improve vulncheck to filter known ignores via jq
+
 ## v1.9.16
 
 - bump bborbe/errors to v1.5.9

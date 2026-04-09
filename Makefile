@@ -50,7 +50,16 @@ errcheck:
 
 .PHONY: vulncheck
 vulncheck:
-	go run -mod=mod golang.org/x/vuln/cmd/govulncheck $(shell go list -mod=mod ./... | grep -v /vendor/)
+	@set -o pipefail; \
+	tmp=$$(mktemp); trap 'rm -f $$tmp' EXIT; \
+	go run -mod=mod golang.org/x/vuln/cmd/govulncheck -format json $(shell go list -mod=mod ./... | grep -v /vendor/) > $$tmp || { echo "govulncheck failed"; cat $$tmp; exit 1; }; \
+	unexpected=$$(jq -r --argjson ignore '$(VULN_IGNORE_JQ)' 'select(.finding != null) | .finding.osv | select(. as $$o | $$ignore | index($$o) | not)' $$tmp | sort -u); \
+	if [ -n "$$unexpected" ]; then \
+		echo "Unexpected vulnerabilities found:"; echo "$$unexpected"; \
+		jq -r 'select(.finding != null) | .finding' $$tmp; \
+		exit 1; \
+	fi; \
+	echo "No unignored vulnerabilities found"
 
 .PHONY: osv-scanner
 osv-scanner:
