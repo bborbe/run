@@ -325,10 +325,9 @@ var _ = Describe("Race Conditions and Resource Cleanup", func() {
 					if index%3 == 0 {
 						atomic.AddInt64(&errorCount, 1)
 						return errors.New("test error")
-					} else {
-						atomic.AddInt64(&successCount, 1)
-						return nil
 					}
+					atomic.AddInt64(&successCount, 1)
+					return nil
 				}
 			}
 

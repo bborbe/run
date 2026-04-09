@@ -8,7 +8,7 @@ precommit: ensure format generate test check addlicense
 
 .PHONY: ensure
 ensure:
-	go mod tidy
+	go mod tidy -e
 	go mod verify
 	rm -rf vendor
 
@@ -31,10 +31,8 @@ test:
 	# -race
 	go test -mod=mod -p=$${GO_TEST_PARALLEL:-1} -cover $(shell go list -mod=mod ./... | grep -v /vendor/)
 
-# TODO: enable lint
-# check: lint vet errcheck vulncheck osv-scanner gosec trivy
 .PHONY: check
-check: vet errcheck vulncheck osv-scanner gosec trivy
+check: lint vet errcheck vulncheck osv-scanner gosec trivy
 
 .PHONY: lint
 lint:

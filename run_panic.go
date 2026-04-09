@@ -14,8 +14,8 @@ import (
 func CatchPanic(fn Func) Func {
 	return func(ctx context.Context) (err error) {
 		defer func() {
-			if panic := recover(); panic != nil {
-				err = fmt.Errorf("catch panic: %v", panic)
+			if r := recover(); r != nil {
+				err = fmt.Errorf("catch panic: %v", r)
 			}
 		}()
 		return fn(ctx)

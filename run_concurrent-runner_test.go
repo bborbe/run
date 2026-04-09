@@ -20,7 +20,7 @@ import (
 
 var _ = Describe("ConcurrentRunner", func() {
 	var ctx context.Context
-	var max int
+	var maxCount int
 	var concurrentRunner run.ConcurrentRunner
 	var counter uint64
 	var mux sync.Mutex
@@ -29,8 +29,8 @@ var _ = Describe("ConcurrentRunner", func() {
 	BeforeEach(func() {
 		ctx = context.Background()
 		atomic.StoreUint64(&counter, 0)
-		max = 8
-		concurrentRunner = run.NewConcurrentRunner(max)
+		maxCount = 8
+		concurrentRunner = run.NewConcurrentRunner(maxCount)
 	})
 	JustBeforeEach(func() {
 		ctx, cancel := context.WithCancel(ctx)
@@ -122,7 +122,7 @@ var _ = Describe("ConcurrentRunner", func() {
 			}()
 		})
 		It("never exceeds max concurrent limit", func() {
-			Expect(atomic.LoadInt32(&maxConcurrent)).To(BeNumerically("<=", int32(max)))
+			Expect(atomic.LoadInt32(&maxConcurrent)).To(BeNumerically("<=", int32(maxCount)))
 		})
 		It("executes all methods", func() {
 			Expect(atomic.LoadUint64(&counter)).To(Equal(uint64(20)))
@@ -143,7 +143,7 @@ var _ = Describe("ConcurrentRunner", func() {
 		It("discards functions added after close", func() {
 			var localCounter uint64
 			runner := run.NewConcurrentRunner(5)
-			runner.Close()
+			_ = runner.Close()
 
 			// This should not panic and should discard the function
 			runner.Add(ctx, func(ctx context.Context) error {

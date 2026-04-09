@@ -93,10 +93,9 @@ var _ = Describe("Complex Error Propagation", func() {
 					if index%3 == 0 {
 						atomic.AddInt64(&errorCount, 1)
 						return fmt.Errorf("error from function %d", index)
-					} else {
-						atomic.AddInt64(&successCount, 1)
-						return nil
 					}
+					atomic.AddInt64(&successCount, 1)
+					return nil
 				}
 			}
 
@@ -361,7 +360,7 @@ var _ = Describe("Complex Error Propagation", func() {
 				return errors.New("concurrent error 2")
 			})
 
-			runner.Close()
+			_ = runner.Close()
 			err := runner.Run(ctx)
 
 			Expect(err).To(HaveOccurred())
@@ -399,7 +398,7 @@ var _ = Describe("Complex Error Propagation", func() {
 				localCancel()
 			}()
 
-			runner.Close()
+			_ = runner.Close()
 			err := runner.Run(localCtx)
 
 			Expect(err).To(HaveOccurred())
