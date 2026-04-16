@@ -8,6 +8,20 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.20
+
+- chore: update github.com/bborbe/errors to v1.5.10
+- chore: update github.com/getsentry/sentry-go to v0.45.1
+- chore: update golang.org/x/vuln to v1.2.0
+- chore: update golang.org/x/crypto, net, mod, tools and other stdlib deps
+
+## v1.9.19
+
+- chore: update github.com/bborbe/errors to v1.5.10
+- chore: update github.com/getsentry/sentry-go to v0.45.1
+- chore: update golang.org/x/vuln to v1.2.0
+- chore: update golang.org/x/tools, crypto, net, text, mod to latest
+
 ## v1.9.18
 
 - fix variable shadowing of `panic` builtin in CatchPanic
