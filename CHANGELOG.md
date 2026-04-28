@@ -8,6 +8,14 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.22
+
+- bump getsentry/sentry-go to v0.46.1
+- bump onsi/ginkgo/v2 to v2.28.2
+- bump securego/gosec/v2 to v2.26.1
+- bump golang.org/x/vuln to v1.3.0
+- bump anthropic-sdk-go, openai-go, otel, genai and other indirect deps
+
 ## v1.9.21
 
 - Update bborbe/errors to v1.5.10
