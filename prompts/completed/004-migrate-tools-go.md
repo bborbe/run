@@ -1,11 +1,12 @@
 ---
-status: committing
+status: completed
 summary: Migrated bborbe/run from tools.go to tools.env + Makefile @version pattern; go.mod reduced from 449 to 39 lines, replace block removed, all CVE suppressions cleaned up.
 container: run-004-migrate-tools-go
 dark-factory-version: v0.137.0-1-g310a15c6
 created: "2026-04-30T19:11:24Z"
 queued: "2026-04-30T19:11:24Z"
 started: "2026-04-30T19:20:24Z"
+completed: "2026-04-30T19:26:01Z"
 ---
 
 # Migrate from tools.go to tools.env + Makefile @version pattern
