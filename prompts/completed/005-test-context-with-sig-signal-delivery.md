@@ -1,13 +1,12 @@
 ---
-status: committing
+status: completed
 summary: Fixed close-on-registered panic in ContextWithSig by replacing defer close(signalCh) with defer signal.Stop(signalCh), removed dead if !ok branch, and added Ginkgo tests for signal delivery paths achieving 100% coverage
 container: run-exec-005-test-context-with-sig-signal-delivery
 dark-factory-version: v0.163.4-1-gce8e514
 created: "2026-05-19T18:30:00Z"
 queued: "2026-05-19T16:53:32Z"
 started: "2026-05-19T20:19:45Z"
-completed: "2026-05-19T19:21:22Z"
-lastFailReason: 'execute prompt: docker run failed: wait command: exit status 137'
+completed: "2026-05-19T20:28:46Z"
 ---
 
 # Cover the signal-delivery path in ContextWithSig (and fix close-on-registered panic)
