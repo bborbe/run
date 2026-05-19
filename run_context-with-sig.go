@@ -22,17 +22,19 @@ func ContextWithSig(ctx context.Context) context.Context {
 		defer cancel()
 
 		signalCh := make(chan os.Signal, 1)
-		defer close(signalCh)
-
-		signal.Notify(signalCh, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+		signal.Notify(
+			signalCh,
+			os.Interrupt,
+			syscall.SIGINT,
+			syscall.SIGTERM,
+			syscall.SIGUSR1,
+			syscall.SIGUSR2,
+		)
+		defer signal.Stop(signalCh)
 
 		select {
-		case signal, ok := <-signalCh:
-			if !ok {
-				glog.V(2).Infof("signal channel closed => cancel context ")
-				return
-			}
-			glog.V(2).Infof("got signal %s => cancel context ", signal)
+		case sig := <-signalCh:
+			glog.V(2).Infof("got signal %s => cancel context ", sig)
 		case <-ctx.Done():
 		}
 	}()

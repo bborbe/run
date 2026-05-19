@@ -8,6 +8,11 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.26
+
+- fix: Use signal.Stop instead of close to unregister signal.Notify in ContextWithSig, preventing panic on repeated signal delivery
+- test: Add signal delivery coverage for ContextWithSig (SIGINT and SIGTERM paths)
+
 ## v1.9.25
 
 - bump github.com/bborbe/errors v1.5.12 → v1.5.13
