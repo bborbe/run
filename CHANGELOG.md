@@ -8,6 +8,12 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.27
+
+- revert: remove `syscall.SIGUSR1` and `syscall.SIGUSR2` from `ContextWithSig`'s `signal.Notify` list (added unintentionally in v1.9.26); the function again responds only to `os.Interrupt`, `SIGINT`, and `SIGTERM` as documented
+- revert: remove the v1.9.26 "Signal delivery" Ginkgo tests; they were named after SIGTERM/SIGINT but actually sent SIGUSR1/SIGUSR2 to work around Ginkgo's signal interception, which produced misleading coverage
+- note: the panic fix from v1.9.26 (`signal.Stop` instead of `close`) is preserved
+
 ## v1.9.26
 
 - fix: Use signal.Stop instead of close to unregister signal.Notify in ContextWithSig, preventing panic on repeated signal delivery

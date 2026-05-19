@@ -6,8 +6,6 @@ package run_test
 
 import (
 	"context"
-	"os"
-	"syscall"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -188,52 +186,6 @@ var _ = Describe("ContextWithSig", func() {
 			case <-time.After(100 * time.Millisecond):
 				Fail("Context should have been cancelled")
 			}
-		})
-	})
-
-	Context("Signal delivery", func() {
-		It("cancels signal context when SIGTERM is received", func() {
-			parentCtx, parentCancel := context.WithCancel(context.Background())
-			sigCtx := run.ContextWithSig(parentCtx)
-
-			go func() {
-				time.Sleep(50 * time.Millisecond)
-				// Use SIGUSR1 because Ginkgo intercepts SIGTERM in the test process
-				err := syscall.Kill(os.Getpid(), syscall.SIGUSR1)
-				Expect(err).NotTo(HaveOccurred())
-			}()
-
-			select {
-			case <-sigCtx.Done():
-				Expect(sigCtx.Err()).To(Equal(context.Canceled))
-			case <-time.After(200 * time.Millisecond):
-				Fail("Context was not cancelled within timeout")
-			}
-
-			parentCancel()
-			Eventually(sigCtx.Done()).Should(BeClosed())
-		})
-
-		It("cancels signal context when SIGINT is received", func() {
-			parentCtx, parentCancel := context.WithCancel(context.Background())
-			sigCtx := run.ContextWithSig(parentCtx)
-
-			go func() {
-				time.Sleep(50 * time.Millisecond)
-				// Use SIGUSR2 because Ginkgo intercepts SIGINT in the test process
-				err := syscall.Kill(os.Getpid(), syscall.SIGUSR2)
-				Expect(err).NotTo(HaveOccurred())
-			}()
-
-			select {
-			case <-sigCtx.Done():
-				Expect(sigCtx.Err()).To(Equal(context.Canceled))
-			case <-time.After(200 * time.Millisecond):
-				Fail("Context was not cancelled within timeout")
-			}
-
-			parentCancel()
-			Eventually(sigCtx.Done()).Should(BeClosed())
 		})
 	})
 

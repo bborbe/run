@@ -22,14 +22,7 @@ func ContextWithSig(ctx context.Context) context.Context {
 		defer cancel()
 
 		signalCh := make(chan os.Signal, 1)
-		signal.Notify(
-			signalCh,
-			os.Interrupt,
-			syscall.SIGINT,
-			syscall.SIGTERM,
-			syscall.SIGUSR1,
-			syscall.SIGUSR2,
-		)
+		signal.Notify(signalCh, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 		defer signal.Stop(signalCh)
 
 		select {
