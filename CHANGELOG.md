@@ -8,6 +8,14 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.28
+
+- bump go 1.26.3 → 1.26.4
+- bump golang.org/x/net v0.53.0 → v0.55.0 (vuln fix)
+- bump golang.org/x/sys v0.43.0 → v0.45.0, x/text v0.36.0 → v0.37.0
+- drop standalone errcheck/gosec; move config into golangci.yml
+- update vulncheck with ignore-list support
+
 ## v1.9.27
 
 - revert: remove `syscall.SIGUSR1` and `syscall.SIGUSR2` from `ContextWithSig`'s `signal.Notify` list (added unintentionally in v1.9.26); the function again responds only to `os.Interrupt`, `SIGINT`, and `SIGTERM` as documented

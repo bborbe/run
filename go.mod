@@ -1,6 +1,6 @@
 module github.com/bborbe/run
 
-go 1.26.3
+go 1.26.4
 
 require (
 	github.com/bborbe/errors v1.5.13
@@ -36,4 +36,8 @@ require (
 	golang.org/x/text v0.37.0 // indirect
 	golang.org/x/tools v0.44.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
+)
+
+exclude (
+	cloud.google.com/go v0.26.0
 )
