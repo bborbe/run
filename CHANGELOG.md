@@ -8,6 +8,13 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.29
+
+- Bump sentry-go from v0.46.2 to v0.47.0
+- Bump ginkgo/v2 from v2.29.0 to v2.32.0, gomega from v1.41.0 to v1.42.1
+- Bump golang.org/x/ indirect deps (net, sync, sys, text, tools, mod)
+- Drop indirect go-difflib dependency
+
 ## v1.9.28
 
 - bump go 1.26.3 → 1.26.4
