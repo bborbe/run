@@ -17,7 +17,9 @@ import (
 // It listens for SIGINT and SIGTERM signals and cancels the returned context when any of these signals are received.
 // This is useful for graceful shutdown of long-running processes.
 func ContextWithSig(ctx context.Context) context.Context {
-	ctxWithCancel, cancel := context.WithCancel(ctx) // #nosec G118
+	// #nosec G118 -- the cancel func is not leaked: the goroutine below owns it
+	// and defers it, so it runs on signal receipt or on parent-ctx cancellation.
+	ctxWithCancel, cancel := context.WithCancel(ctx)
 	go func() {
 		defer cancel()
 
