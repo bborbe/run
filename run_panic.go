@@ -6,7 +6,8 @@ package run
 
 import (
 	"context"
-	"fmt"
+
+	"github.com/bborbe/errors"
 )
 
 // CatchPanic wraps the given function to recover from panics and convert them to errors.
@@ -15,7 +16,7 @@ func CatchPanic(fn Func) Func {
 	return func(ctx context.Context) (err error) {
 		defer func() {
 			if r := recover(); r != nil {
-				err = fmt.Errorf("catch panic: %v", r)
+				err = errors.Errorf(ctx, "catch panic: %v", r)
 			}
 		}()
 		return fn(ctx)
