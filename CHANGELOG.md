@@ -8,6 +8,11 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## v1.9.36
+
+- bump github.com/bborbe/errors to v1.5.18
+- bump github.com/onsi/ginkgo/v2 to v2.32.1
+
 ## v1.9.35
 
 - update Go to 1.26.6 and update dependencies (fixes GO-2026-5972, GO-2026-6090, CVE-2026-56864, CVE-2026-56865)
