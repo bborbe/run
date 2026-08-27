@@ -8,6 +8,10 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## Unreleased
+
+- chore: update Go to 1.27.0 and github.com/bborbe/errors to v1.6.0, github.com/getsentry/sentry-go to v0.49.0
+
 ## v1.10.0
 
 - feat: opt into `autoMerge.trivial` for mechanically-trivial update PRs
