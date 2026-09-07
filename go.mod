@@ -1,9 +1,9 @@
 module github.com/bborbe/run
 
-go 1.27.0
+go 1.27.1
 
 require (
-	github.com/bborbe/errors v1.6.0
+	github.com/bborbe/errors v1.6.1
 	github.com/getsentry/sentry-go v0.49.0
 	github.com/golang/glog v1.2.5
 	github.com/onsi/ginkgo/v2 v2.32.1
