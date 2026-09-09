@@ -8,6 +8,10 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## Unreleased
+
+- feat: add .reviewignore for the PR size gate
+
 ## v1.10.3
 
 - chore: update Go to 1.27.1 and github.com/bborbe/errors to v1.6.1
