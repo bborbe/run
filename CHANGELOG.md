@@ -8,6 +8,10 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## Unreleased
+
+- fix: sync `tools.env` to the canonical `bborbe/go-skeleton` pins (`golangci-lint` v2.13.1 -> v2.14.0, `osv-scanner` v2.3.1 -> v2.6.0), bump `golang.org/x/net` to v0.60.0, and ignore the Go 1.27.2 stdlib advisories in `VULNCHECK_IGNORE`, so `make precommit` passes under Go 1.27.2.
+
 ## v1.11.0
 
 - feat: add .reviewignore for the PR size gate
