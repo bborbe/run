@@ -8,6 +8,10 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## Unreleased
+
+- chore: update Go to 1.27.2 and github.com/bborbe/errors to v1.6.3, github.com/getsentry/sentry-go to v0.50.0, github.com/prometheus/client_golang to v1.25.0
+
 ## v1.11.1
 
 - fix: sync `tools.env` to the canonical `bborbe/go-skeleton` pins (`golangci-lint` v2.13.1 -> v2.14.0, `osv-scanner` v2.3.1 -> v2.6.0), bump `golang.org/x/net` to v0.60.0, and ignore the Go 1.27.2 stdlib advisories in `VULNCHECK_IGNORE`, so `make precommit` passes under Go 1.27.2.
