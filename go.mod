@@ -3,11 +3,11 @@ module github.com/bborbe/run
 go 1.27.3
 
 require (
-	github.com/bborbe/errors v1.6.4
+	github.com/bborbe/errors v1.6.5
 	github.com/getsentry/sentry-go v0.50.0
 	github.com/golang/glog v1.2.5
-	github.com/onsi/ginkgo/v2 v2.32.1
-	github.com/onsi/gomega v1.42.1
+	github.com/onsi/ginkgo/v2 v2.33.1
+	github.com/onsi/gomega v1.44.0
 	github.com/prometheus/client_golang v1.25.0
 )
 
