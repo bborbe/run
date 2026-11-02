@@ -3,7 +3,7 @@ module github.com/bborbe/run
 go 1.27.3
 
 require (
-	github.com/bborbe/errors v1.6.5
+	github.com/bborbe/errors v1.6.6
 	github.com/getsentry/sentry-go v0.50.0
 	github.com/golang/glog v1.2.5
 	github.com/onsi/ginkgo/v2 v2.33.1
@@ -22,7 +22,7 @@ require (
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/pprof v0.0.0-20261026192309-dbd0ed30aa88 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/pandatix/go-abnf v0.5.3 // indirect
+	github.com/pandatix/go-abnf v0.5.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_model v0.6.3 // indirect
 	github.com/prometheus/common v0.73.1 // indirect
