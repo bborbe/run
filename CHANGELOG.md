@@ -8,6 +8,10 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## Unreleased
+
+- chore: remove stale vulnerability ignore IDs that no longer apply (govulncheck, trivy)
+
 ## v1.12.2
 
 - chore: drop the CVE alias CVE-2026-33817 of the withdrawn go.etcd.io/bbolt advisory from `.trivyignore`
