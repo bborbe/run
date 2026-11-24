@@ -8,6 +8,10 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## Unreleased
+
+- chore: drop the CVE alias CVE-2026-33817 of the withdrawn go.etcd.io/bbolt advisory from `.trivyignore`
+
 ## v1.12.1
 
 - chore: remove the withdrawn advisories GO-2026-4923 and GHSA-6jwv-w5xf-7j27 (go.etcd.io/bbolt) from `VULNCHECK_IGNORE` and `.osv-scanner.toml`
