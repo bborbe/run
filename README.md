@@ -112,6 +112,15 @@ protectedFunc := skipper.SkipParallel(func(ctx context.Context) error {
 })
 ```
 
+```go
+// Force-release a lock held longer than an hour by a hung action
+skipper := run.NewParallelSkipper(
+    run.WithMaxRunningDuration(time.Hour),
+)
+```
+
+Passing no options leaves the default `MaxRunningDuration` at `0`, which never force-releases a lock and preserves the previous behaviour. Skipped invocations are logged at the default log level with the elapsed running time.
+
 ## Core Types
 
 The library is built around two main interfaces:
