@@ -8,7 +8,7 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
-## Unreleased
+## v1.13.0
 
 - feat: add `WithMaxRunningDuration` and `WithCurrentDateTime` options to `NewParallelSkipper` so a stale lock held by a hung action is force-released, and log skips at default level (fixes silent permanent skipping)
 
